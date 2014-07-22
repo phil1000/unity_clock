@@ -131,7 +131,7 @@ public class PracticeManager : MonoBehaviour {
 		
 		// Calculate and display the elapsed time. Nothing will be displayed if elapsed time is < 0.
 		List<float> sliderTime = myClockFunctions.deriveSliderHoursMins(minSliderValue, maxSliderValue, sliderValue, measure);
-		string elapsedString = myClockFunctions.deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+		string elapsedString = myClockFunctions.deriveElapsedTimeString(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 		if (!elapsedString.Equals(""))
 			GUI.Box(new Rect (574,190,analogClockSize,80), elapsedString, myStyle);
 		

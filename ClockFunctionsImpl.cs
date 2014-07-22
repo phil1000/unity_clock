@@ -65,7 +65,7 @@ namespace AssemblyCSharp
 			return feedback;
 		}
 
-		public string deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
+		public string deriveElapsedTimeString(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
 			// derives the elapsed time between the time represented on the slider and 
 			// the start time. The value returned is translated into a string and 
 			// is set to blanks if the slider time < start time
@@ -74,16 +74,33 @@ namespace AssemblyCSharp
 			if ((sliderTime [0] == startHours) && (sliderTime [1] < startMinutes)) return "";
 			
 			string elapsed = "";
-			
+
+			List<float> elapsedTime = deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+
+			if (elapsedTime[0] != 0) {
+				elapsed = "Elapsed Time = " + elapsedTime[0].ToString ();
+				if (elapsedTime[0] == 1) elapsed = elapsed + " hour";
+				else elapsed = elapsed + " hours";
+				if (elapsedTime[1] != 0)
+					elapsed = elapsed + " \nand " + elapsedTime[1].ToString () + " minutes";
+			} else {
+				elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
+			}
+			return elapsed;
+		}
+
+		public List<float> deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
+			List<float> elapsedTime = new List<float> ();
+
 			DateTime sliderDate = new DateTime (DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, (int)sliderTime [0], (int)sliderTime [1],0);
 			DateTime startDate = new DateTime (DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, (int)startHours, (int)startMinutes, 0);
 			
 			TimeSpan difference = sliderDate.Subtract (startDate);
 			int hoursDiff = difference.Hours;
-			int minsDiff = difference.Minutes;						
+			int minsDiff = difference.Minutes;
 
 			if ( (elapsedIsSnapped) && (sliderValue!=maxSliderValue) ) {
-
+				
 				if (measure.Equals("half")) {
 					if (minsDiff > 30)
 						minsDiff = 30;
@@ -99,23 +116,16 @@ namespace AssemblyCSharp
 							minsDiff = 30;
 						if ( (minsDiff>=45) && (minsDiff<60) )
 							minsDiff = 45;
+					} else {
+						minsDiff = 0;
 					}
 				}
-
 			}
-			
-			if (hoursDiff != 0) {
-				elapsed = "Elapsed Time = " + hoursDiff.ToString ();
-				if (hoursDiff == 1) elapsed = elapsed + " hour";
-				else elapsed = elapsed + " hours";
-				if (minsDiff != 0)
-					elapsed = elapsed + " \nand " + minsDiff.ToString () + " minutes";
-			} else {
-				elapsed = "Elapsed Time = " + minsDiff.ToString () + " minutes";
-			}
-			return elapsed;
+			elapsedTime.Add(hoursDiff);
+			elapsedTime.Add(minsDiff);
+			return elapsedTime;
 		}
-		
+
 		public List<float> deriveSliderHoursMins(float min, float max, float value, string measure) {
 			List<float> sliderTime = new List<float>();
 			

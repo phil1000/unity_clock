@@ -110,7 +110,6 @@ public class PlayManager : MonoBehaviour {
 			if (GUI.Button (new Rect (10, 20, 90, 90), "Next \nQuestion", myButtonStyle)) {
 				remainingQuestions = loadNextQuestion (); 
 				mySliderFunctions.initialiseStartMarker();
-				curveScript.setStartCurveSet(false);
 				curveScript.removeCurves();
 			} 
 		}
@@ -153,16 +152,30 @@ public class PlayManager : MonoBehaviour {
 		
 		// Calculate and display the elapsed time. Nothing will be displayed if elapsed time is < 0.
 		List<float> sliderTime = myClockFunctions.deriveSliderHoursMins(minSliderValue, maxSliderValue, sliderValue, measure);
-		string elapsedString = myClockFunctions.deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+		string elapsedString = myClockFunctions.deriveElapsedTimeString(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 		if (!elapsedString.Equals ("")) {
-			GUI.Box (new Rect (574, 100, analogClockSize, 80), elapsedString, myStyle);
-			if (!curveScript.getStartCurveSet()) curveScript.addFirstPoint(sliderTime, sliderRect.x+4,sliderRect.width/12.0f, 120, startHours, startMinutes);
-			curveScript.drawCurves (sliderTime, sliderRect.x+4,sliderRect.width/12.0f, 120, startHours, endHours, endMinutes);
-		}
+			GUI.Box (new Rect (775, 250, 250, 80), elapsedString, myStyle);
+			curveScript.removeCurves();
+			curveScript.addFirstPoint (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes);
+			curveScript.drawCurves (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, endHours, endMinutes);
+			string myString = curveScript.addLastPoint (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, endHours, endMinutes);
+			writeCurveLabels(sliderRect.y-24);
+			//GUI.Label(new Rect(100,400,200,50), "curveNo="+curveScript.getNumberOfCurves().ToString() + " sliderHrs="+sliderTime[0].ToString() + "myString");
+		} else curveScript.removeCurves();
 
 		//position slider clock
 		myDrawClocks.positionClock (Screen.width - analogClockSize - 600, 180, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
 		//GUI.EndGroup ();
+	}
+
+	void writeCurveLabels(float height) {
+		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+		labelStyle.fontSize = 12;
+		labelStyle.alignment = TextAnchor.MiddleCenter;
+		List<CurvePointLabel> myLabels = curveScript.getCurvePointLables ();
+		foreach (CurvePointLabel myLable in myLabels) {
+			GUI.Label (new Rect(myLable.getLeft(), height, myLable.getWidth(), 30), myLable.getText(), labelStyle);
+		}
 	}
 
 	bool loadNextQuestion() {

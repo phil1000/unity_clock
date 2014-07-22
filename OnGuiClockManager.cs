@@ -164,7 +164,7 @@ public class OnGuiClockManager : MonoBehaviour {
 		
 		// Calculate and display the elapsed time. Nothing will be displayed if elapsed time is < 0.
 		List<float> sliderTime = myClockFunctions.deriveSliderHoursMins(minSliderValue, maxSliderValue, sliderValue, measure);
-		string elapsedString = myClockFunctions.deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+		string elapsedString = myClockFunctions.deriveElapsedTimeString(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 		if (!elapsedString.Equals ("")) {
 			GUI.Box (new Rect (574, 100, analogClockSize, 80), elapsedString, myStyle);
 			if (!startCurveSet) addFirstPoint(sliderTime, sliderRect.x+4,sliderRect.width/12.0f, 120);
@@ -244,8 +244,8 @@ public class OnGuiClockManager : MonoBehaviour {
 			}
 		}
 		
-		curveScript.removeCurves(index);
-		if ((sliderTime [0] - startHours) <= 0.0f) startCurveSet = false;
+		//curveScript.removeCurves(index);
+		//if ((sliderTime [0] - startHours) <= 0.0f) startCurveSet = false;
 	}
 	
 	void removeCurves() {

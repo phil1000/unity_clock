@@ -16,7 +16,8 @@ namespace AssemblyCSharp
 		{
 		bool checkTime(float marker, string startOrEnd, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes);
 		List<float> deriveSliderHoursMins(float min, float max, float value, string measure);
-		string deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
+		string deriveElapsedTimeString(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
+		List<float> deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
 		string timeLabel(string strName, float inHours, float inMinutes);
 		string compareElapsedTime(List<float> proposed, float answer);
 		}

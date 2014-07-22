@@ -10,6 +10,7 @@ public class CreateCurves : MonoBehaviour {
 	public Material myMaterial;
 	private int segments = 250;
 	private List<VectorLine> mylines;
+	private List<CurvePointLabel> myCurveLabels;
 	private bool startCurveSet=false;
 	private float nextPoint=0.0f;
 	private float nextHour=0.0f;
@@ -17,6 +18,7 @@ public class CreateCurves : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		mylines = new List<VectorLine> ();
+		myCurveLabels = new List<CurvePointLabel> ();
 	}
 
 	public void setStartCurveSet(bool value) {
@@ -40,7 +42,7 @@ public class CreateCurves : MonoBehaviour {
 		mylines.Add (spline);
 	}
 	
-	public void removeCurve(int index) {
+	/*public void removeCurve(int index) {
 		VectorLine myLine = mylines[index];
 		VectorLine.Destroy (ref myLine);
 		mylines.Remove (myLine);
@@ -48,11 +50,19 @@ public class CreateCurves : MonoBehaviour {
 
 	public void removeCurves(int index) {
 		for (int i=index; i<mylines.Count; i++) {
-			VectorLine myLine = mylines [i];
-			VectorLine.Destroy (ref myLine);
-			mylines.Remove(myLine);
+			removeCurve(i);
 		}
 	}
+
+	public void removeCurves(float sliderHours) {
+
+		int index = (int)(sliderHours - nextHour);
+		index=index+1;
+
+		for (int i=index; i<mylines.Count; i++) {
+			removeCurve(i);
+		}
+	}*/
 
 	public VectorLine getCurve(int index) {
 		return mylines[index];
@@ -68,77 +78,106 @@ public class CreateCurves : MonoBehaviour {
 			VectorLine.Destroy (ref myLine);
 		}
 		mylines.Clear();
+		myCurveLabels.Clear ();
 	}
 
 	public void addFirstPoint(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float startMinutes) {
 		
 		float startPoint = left + (width * startHours) - startHours;;
 		float increment = 0.0f;
-		
-		if ((sliderTime[0]-startHours)>=1) {
-			if (startMinutes == 15.0f) {
-				startPoint = startPoint + 0.25f * width;
-				increment = 0.75f * width;
-			} else {
-				if (startMinutes == 30.0f) {
-					startPoint = startPoint + 0.5f * width;
-					increment = 0.5f * width;
+		string text = "";
+
+		if (this.getNumberOfCurves () == 0) {
+			if ((sliderTime [0] - startHours) >= 1) {
+				if (startMinutes == 15.0f) {
+					startPoint = startPoint + 0.25f * width;
+					increment = 0.75f * width;
+					text = "45m";
 				} else {
-					if (startMinutes == 45.0f) {
-						startPoint = startPoint + 0.75f * width;
-						increment = 0.25f * width;
+					if (startMinutes == 30.0f) {
+						startPoint = startPoint + 0.5f * width;
+						increment = 0.5f * width;
+						text = "30m";
 					} else {
-						increment = width;
+						if (startMinutes == 45.0f) {
+							startPoint = startPoint + 0.75f * width;
+							increment = 0.25f * width;
+							text = "15m";
+						} else {
+							increment = width;
+							text = "1h";
+						}
 					}
 				}
+				this.addCurve (startPoint, startPoint + increment, curveHeight);
+				CurvePointLabel myPoint = new CurvePointLabel(startPoint, increment, text);
+				myCurveLabels.Add(myPoint);
+				nextPoint = startPoint + increment;
+				nextHour = startHours + 1.0f;
 			}
-			this.addCurve (startPoint,startPoint+increment,curveHeight);
-			startCurveSet=true;
-			nextPoint = startPoint+increment;
-			nextHour = startHours+1.0f;
 		}
 	}
 
 	public void drawCurves(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float endHours, float endMinutes) {
 
 		float increment = 0.0f;
-		float iterHours = startHours + 1.0f;
-		int index = (int)(sliderTime [0] - nextHour);
-		index=index+1;
+		float iterHours = nextHour + 1.0f;
 		float lNext = nextPoint;
 
-		if (sliderTime [0] < endHours) {
-			int difference = (int)(sliderTime [0] - nextHour);
-			if (this.getNumberOfCurves () == difference) {
-				lNext = lNext + (width * (difference - 1)) - difference;
-				this.addCurve (lNext, lNext + width, curveHeight);
-			}
-		}
-			
-		if (sliderTime [0] == endHours) {
-			int difference = (int)(sliderTime [0] - nextHour);
-			if (this.getNumberOfCurves () == difference) {
-				lNext = lNext + (width * (difference - 1)) - difference;
-				this.addCurve (lNext, lNext + width, curveHeight);
-				if (endMinutes > 0.0f) {
-					lNext = lNext + (width * (difference - 1)) - difference;
-					/*if (endMinutes == 15.0f) {
-						increment = 0.25f * width;
-					} else {
-						if (endMinutes == 30.0f) {
-							increment = 0.5f * width;
-						} else {
-							if (endMinutes == 45.0f) {
-								increment = 0.75f * width;
-							} 
-						}
-					}*/
-					//this.addCurve (lNext, lNext + increment, curveHeight);
+		while (iterHours <= sliderTime[0]) {
+			if (iterHours <= endHours) {
+				int difference = (int)(iterHours - nextHour); // number of hours between this hour and start hour
+				if (this.getNumberOfCurves () == difference) { // check whether this curve has already been set
+					difference = (int)(iterHours - nextHour);
+					lNext = nextPoint + (width * (difference - 1)) - difference;
 					this.addCurve (lNext, lNext + width, curveHeight);
+					CurvePointLabel myPoint = new CurvePointLabel(lNext, width, "1h");
+					myCurveLabels.Add(myPoint);
 				}
-			}
+			} else break;
+			iterHours = iterHours + 1.0f;
 		}
-		this.removeCurves(index);
-		if ((sliderTime [0] - startHours) <= 0.0f) startCurveSet = false;
 	}
+
+	public string addLastPoint(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float endHours, float endMinutes) {
+		
+		float increment = 0.0f;
+		float iterHours = startHours + 1.0f;
+		float lNext = nextPoint;
+		string temp="";
+		string text = "";
+
+		if (sliderTime [0] == endHours) { 
+			int difference = (int)(sliderTime [0] - nextHour);
+			//if ((endMinutes != 0.0f) && (this.getNumberOfCurves () == (difference+1)) && (endMinutes == sliderTime[1])) {
+			if ((endMinutes != 0.0f) && (this.getNumberOfCurves () == (difference+1))) {
+				lNext = lNext + (width * (difference - 1)) - difference + width;
+				if (endMinutes == 15.0f) {
+					increment = 0.25f * width;
+					text = "15m";
+				} else {
+					if (endMinutes == 30.0f) {
+						increment = 0.5f * width;
+						text = "30m";
+					} else {
+						if (endMinutes == 45.0f) {
+							increment = 0.75f * width;
+							text = "45m";
+						} 
+					}
+				}
+				this.addCurve (lNext, lNext + increment, curveHeight);
+				CurvePointLabel myPoint = new CurvePointLabel(lNext, increment, text);
+				myCurveLabels.Add(myPoint);
+				temp=" added last point curve";
+			}
+			temp=" didnt add last point curve, curve no wrong - " + this.getNumberOfCurves().ToString ();
+		}
+		return temp;
+	}
+
+	public List<CurvePointLabel> getCurvePointLables() {
+		return myCurveLabels;
+	}
+
 }
