@@ -33,7 +33,7 @@ public class StartScript : MonoBehaviour {
 		myDrawClocks.positionClock (((Screen.width/2) - (analogClockSize/2)), ((Screen.height/2) - (analogClockSize/2)), analogClockSize, "", myTextStyle, myGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
 
 		//group buttons together .. then all button coordinates are relative to the group coordinates
-		GUI.BeginGroup(new Rect(20, 20, 150, 400));
+		GUI.BeginGroup(new Rect(20, 150, 150, 400));
 
 		// invoke play scene If Play is pressed
 		if(GUI.Button(new Rect(10,20,90,90), "Play", myButtonStyle)) {

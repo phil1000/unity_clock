@@ -78,7 +78,7 @@ public class PlayManager : MonoBehaviour {
 		mySliderFunctions = new SliderFunctionsImpl ();
 		myDrawClocks = new DrawClockFunctionsImpl ();
 
-		feedbackRect = new Rect (20, 300, 450, 300);
+		feedbackRect = new Rect (20, 20, 450, 300);
 		myFeedbackFunctions = new UserFeedbackFunctionsImpl ();
 	}
 	
@@ -91,15 +91,16 @@ public class PlayManager : MonoBehaviour {
 	
 	void OnGUI ()
 	{
-		setStyles ();
-		GUIStyle myBoxStyle = new GUIStyle(GUI.skin.box);
-		myBoxStyle.normal.background = myAvatar;
-		myFeedbackFunctions.updateStyles (myBoxStyle, myStyle);
 		// Make a background box
-		//GUI.Box(new Rect(170,40,1024,512), "", myBoxStyle);
+		GUI.Box(new Rect((Screen.width-820)/2,20,820,410), "", myBoxStyle);
+
+		setStyles ();
+		GUIStyle feedBox = new GUIStyle(GUI.skin.box);
+		feedBox.normal.background = myAvatar;
+		myFeedbackFunctions.updateStyles (feedBox, myStyle);
 
 		//group buttons together .. then all button coordinates are relative to the group coordinates
-		GUI.BeginGroup(new Rect(20, 20, 150, 450));
+		GUI.BeginGroup(new Rect(20, 150, 150, 450));
 		//application quit button
 		if (GUI.Button (new Rect (10,120,90,90), "Return", myReturnButton)) {
 			Application.LoadLevel(0);
@@ -120,7 +121,7 @@ public class PlayManager : MonoBehaviour {
 		}
 
 		//position and label start and end clocks
-		GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 20, 350, 450));
+		GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 30, 350, 450));
 		float startEndClockSize = 128.0f;
 		float centreSize = 12.0f;
 		int temp = myStyle.fontSize;
@@ -154,17 +155,17 @@ public class PlayManager : MonoBehaviour {
 		List<float> sliderTime = myClockFunctions.deriveSliderHoursMins(minSliderValue, maxSliderValue, sliderValue, measure);
 		string elapsedString = myClockFunctions.deriveElapsedTimeString(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 		if (!elapsedString.Equals ("")) {
-			GUI.Box (new Rect (775, 250, 250, 80), elapsedString, myStyle);
+			GUI.Box (new Rect (Screen.width/2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
 			curveScript.removeCurves();
 			curveScript.addFirstPoint (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes);
 			curveScript.drawCurves (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, endHours, endMinutes);
-			string myString = curveScript.addLastPoint (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, endHours, endMinutes);
+			curveScript.addLastPoint (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, endHours, endMinutes);
 			writeCurveLabels(sliderRect.y-24);
-			//GUI.Label(new Rect(100,400,200,50), "curveNo="+curveScript.getNumberOfCurves().ToString() + " sliderHrs="+sliderTime[0].ToString() + "myString");
+			//GUI.Label(new Rect(100,400,200,50), "curveNo="+curveScript.getNumberOfCurves().ToString() + " sliderHrs="+sliderTime[0].ToString() + myString);
 		} else curveScript.removeCurves();
 
 		//position slider clock
-		myDrawClocks.positionClock (Screen.width - analogClockSize - 600, 180, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
+		myDrawClocks.positionClock (Screen.width - analogClockSize - 580, 200, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
 		//GUI.EndGroup ();
 	}
 
@@ -197,19 +198,13 @@ public class PlayManager : MonoBehaviour {
 	void setStyles() {
 		sliderBackgroundStyle = new GUIStyle (GUI.skin.horizontalSlider);
 		myStyle = new GUIStyle(GUI.skin.label); 
-		myBoxStyle = new GUIStyle(GUI.skin.box);
+
 		myBackgroundStyle = new GUIStyle(GUI.skin.box);
 		myStyle.fontSize = 18;
 		myStyle.fontStyle = FontStyle.BoldAndItalic;
 		myStyle.alignment = TextAnchor.MiddleCenter;
 		myStyle.normal.textColor = Color.white;
 		
-		myBoxStyle.fontSize = 14;
-		myBoxStyle.fontStyle = FontStyle.BoldAndItalic;
-		myBoxStyle.alignment = TextAnchor.MiddleCenter;
-		myBoxStyle.normal.textColor = Color.white;
-		myBoxStyle.normal.background = boxBackground;
-		myBoxStyle.fontSize = 14;
 		myBackgroundStyle.fontStyle = FontStyle.BoldAndItalic;
 		myBackgroundStyle.alignment = TextAnchor.MiddleCenter;
 		myBackgroundStyle.normal.textColor = Color.white;

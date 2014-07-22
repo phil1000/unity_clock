@@ -82,7 +82,7 @@ namespace AssemblyCSharp
 				if (elapsedTime[0] == 1) elapsed = elapsed + " hour";
 				else elapsed = elapsed + " hours";
 				if (elapsedTime[1] != 0)
-					elapsed = elapsed + " \nand " + elapsedTime[1].ToString () + " minutes";
+					elapsed = elapsed + " and " + elapsedTime[1].ToString () + " minutes";
 			} else {
 				elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
 			}
