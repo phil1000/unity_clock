@@ -64,11 +64,11 @@ namespace AssemblyCSharp
 
 			float sliderValue = 0.0f;
 			if (startMarker == 99.0f) {
-				myFeedbackFunctions.giveFeedback(feedbackRect, "set the start marker by double clicking over the slider");
+				myFeedbackFunctions.giveFeedback(feedbackRect, "Now set the start marker by double clicking over the slider");
 				setStartMarker=true;
 			} else {
 				if (!myClockFunctions.checkTime(startMarker, "Start", minSliderValue, maxSliderValue, measure, startHours, startMinutes, endHours, endMinutes)) {
-					myFeedbackFunctions.giveFeedback(feedbackRect, "sorry, that is not a correct start time, please try again");
+					myFeedbackFunctions.giveFeedback(feedbackRect, "That's not quite right. Try again");
 					setStartMarker=true;
 				} else {
 					// position the startMarker but first align it precisely
