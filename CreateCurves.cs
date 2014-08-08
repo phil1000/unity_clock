@@ -59,31 +59,80 @@ public class CreateCurves : MonoBehaviour {
 		myCurveLabels.Clear ();
 	}
 
-	public void addFirstPoint(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float startMinutes) {
+	public void addCurves(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float startMinutes, float endHours, float endMinutes) {
+		if (addFirstPoint (sliderTime, left, width, curveHeight, startHours, startMinutes, endHours, endMinutes) > 0)
+						return;
+		//drawCurves (sliderTime, left, width, curveHeight, startHours, endHours, endMinutes);
+		if (nextHour!=endHours) drawCurves (sliderTime, left, width, curveHeight, startHours, endHours, endMinutes);
+		addLastPoint (sliderTime, left, width, curveHeight, startHours, endHours, endMinutes);
+	}
+
+	public int addFirstPoint(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float startMinutes, float endHours, float endMinutes) {
 		
 		float startPoint = left + (width * startHours) - startHours;;
 		float increment = 0.0f;
 		string text = "";
+		int returnValue = 0;
 
 		if (this.getNumberOfCurves () == 0) {
 			if ((sliderTime [0] - startHours) >= 1) {
-				if (startMinutes == 15.0f) {
-					startPoint = startPoint + 0.25f * width;
-					increment = 0.75f * width;
-					text = "45m";
-				} else {
-					if (startMinutes == 30.0f) {
-						startPoint = startPoint + 0.5f * width;
-						increment = 0.5f * width;
-						text = "30m";
+				if (endHours>startHours) {
+					if (startMinutes == 15.0f) {
+						startPoint = startPoint + 0.25f * width;
+						increment = 0.75f * width;
+						text = "45m";
 					} else {
-						if (startMinutes == 45.0f) {
-							startPoint = startPoint + 0.75f * width;
+						if (startMinutes == 30.0f) {
+							startPoint = startPoint + 0.5f * width;
+							increment = 0.5f * width;
+							text = "30m";
+						} else {
+							if (startMinutes == 45.0f) {
+								startPoint = startPoint + 0.75f * width;
+								increment = 0.25f * width;
+								text = "15m";
+							} else {
+								increment = width;
+								text = "1h";
+							}
+						}
+					}
+				} else {
+					// end hours must be same as start hours, so end minutes must be different
+					returnValue=1;
+					if (startMinutes == 15.0f) {
+						startPoint = startPoint + 0.25f * width;
+						if (endMinutes==30.0f) {
 							increment = 0.25f * width;
 							text = "15m";
 						} else {
-							increment = width;
-							text = "1h";
+							//end minutes must be 45
+							increment = 0.5f * width;
+							text = "30m";
+						}
+					} else {
+						if (startMinutes == 30.0f) {
+							startPoint = startPoint + 0.5f * width;
+							if (endMinutes==45.0f) {
+								increment = 0.25f * width;
+								text = "15m";
+							}
+						} else {
+							if (startMinutes == 0.0f) {
+								if (endMinutes==15.0f) {
+									increment = 0.25f * width;
+									text = "15m";
+								} else {
+									if (endMinutes==30.0f) {
+										increment = 0.5f * width;
+										text = "30m";
+									} else {
+										//end minutes must be 45
+										increment = 0.75f * width;
+										text = "45m";
+									}
+								}
+							}
 						}
 					}
 				}
@@ -92,8 +141,10 @@ public class CreateCurves : MonoBehaviour {
 				myCurveLabels.Add(myPoint);
 				nextPoint = startPoint + increment;
 				nextHour = startHours + 1.0f;
-			}
+			} 
 		}
+
+		return returnValue;
 	}
 
 	public void drawCurves(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float endHours, float endMinutes) {

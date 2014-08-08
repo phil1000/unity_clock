@@ -15,29 +15,38 @@ namespace AssemblyCSharp
 {
 	public class ClockFunctionsImpl : ClockFunctions {
 
-		public bool checkTime(float marker, string startOrEnd, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes) {
+		public int checkTime(float marker, float minSliderValue, float maxSliderValue, string measure, float hours, float minutes) {
+			// return 0 if same, 1 if slider > time, -1 if slider < time
+			int returnVal;
 			List<float> lSliderTime = deriveSliderHoursMins(minSliderValue, maxSliderValue, marker, measure);
-			
-			if (startOrEnd.Equals ("Start")) {
-				if (lSliderTime [0] > startHours) return false; // means a minimum of 15 minutes later
-				if (lSliderTime[0] == startHours) {
-					if (Mathf.Abs(lSliderTime [1] - startMinutes)>10.0f) return false;
-					return true;
+
+			if (lSliderTime [0] > hours) {
+				returnVal=1; // means a minimum of 15 minutes later
+			} else { 
+				if (lSliderTime [0] == hours) {
+					if ((lSliderTime [1] - minutes) > 10.0f) {
+						returnVal=1;
+					} else {
+						if ((minutes - lSliderTime [1]) > 10.0f) {
+							returnVal=-1;
+						} else {
+							returnVal= 0;
+						}
+					}
+				} else {
+					// to get here the slider hours are less than the passed hours
+					if ((hours - lSliderTime [0]) > 1.0f) {
+						returnVal= -1;
+					} else {
+						if ((60.0f - lSliderTime [1]) > 10.0f) {
+							returnVal= -1;
+						} else {
+							returnVal= 0;
+						}
+					}
 				}
-				if ((startHours-lSliderTime[0])>1.0f) return false;
-				if (Mathf.Abs(60.0f - lSliderTime [1])>10.0f) return false;
-				return true;
-			} else {
-				
-				if (lSliderTime [0] > endHours) return false; // means a minimum of 15 minutes later
-				if (lSliderTime[0] == endHours) {
-					if (Mathf.Abs(lSliderTime [1] - endMinutes)>10.0f) return false;
-					return true;
-				}
-				if ((endHours-lSliderTime[0])>1.0f) return false;
-				if (Mathf.Abs(60.0f - lSliderTime [1])>10.0f) return false;
-				return true;
 			}
+			return returnVal;
 		}
 
 		public string compareElapsedTime(List<float> proposed, float answer) {
@@ -89,6 +98,48 @@ namespace AssemblyCSharp
 			return elapsed;
 		}
 
+		//public string deriveElapsedTimeString(List<float> answer, List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
+		public string deriveElapsedTimeString(List<float> answer) {
+
+			// derives the elapsed time between the time represented on the slider and 
+			// the start time. The value returned is translated into a string and 
+			// is set to blanks if the slider time < start time
+			//if ((sliderTime [0] == startHours) && (sliderTime [1] == startMinutes)) return "Elapsed Time = 0 minutes";
+			//if (sliderTime [0] < startHours) return "";
+			//if ((sliderTime [0] == startHours) && (sliderTime [1] < startMinutes)) return "";
+			
+			string elapsed = "Elapsed Time = ";
+			
+			//List<float> elapsedTime = deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+
+			//if ((elapsedTime[0] > answer[0]) || ((elapsedTime [0] == answer[0]) && (elapsedTime [1] >= answer[1]))) {
+				if (answer[0]!=0) {
+					elapsed = elapsed + answer[0].ToString();
+					if (answer[0] == 1) elapsed = elapsed + " hour";
+					else elapsed = elapsed + " hours";
+					if (answer[1] != 0)
+						elapsed = elapsed + " and " + answer[1].ToString () + " minutes";
+				} else {
+					elapsed = "Elapsed Time = " + answer[1].ToString () + " minutes";
+				}
+
+				//return elapsed;
+			//}
+			return elapsed;
+
+			/*if (elapsedTime[0] != 0) {
+				elapsed = elapsed + elapsedTime[0].ToString ();
+				if (elapsedTime[0] == 1) elapsed = elapsed + " hour";
+				else elapsed = elapsed + " hours";
+				if (elapsedTime[1] != 0)
+					elapsed = elapsed + " and " + elapsedTime[1].ToString () + " minutes";
+			} else {
+				elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
+			}
+			return elapsed;*/
+
+		}
+
 		public List<float> deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
 			List<float> elapsedTime = new List<float> ();
 
@@ -102,7 +153,7 @@ namespace AssemblyCSharp
 			if ( (elapsedIsSnapped) && (sliderValue!=maxSliderValue) ) {
 				
 				if (measure.Equals("half")) {
-					if (minsDiff > 30)
+					if (minsDiff >= 30)
 						minsDiff = 30;
 					else
 						minsDiff = 0;

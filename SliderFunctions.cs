@@ -15,9 +15,12 @@ namespace AssemblyCSharp
 		{
 		void initialiseStartMarker();
 		void setStartMarkerValue(float sliderValue);
-		float positionStartMarker(Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions);
+		float getStartMarkerValue();
+		float positionStartMarker(float startMarker, Rect sliderRect, float minSliderValue, float maxSliderValue, GUIStyle myMarkerStyle);
+		float positionStartMarker(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions);
 		Rect positionMarker (float marker, Rect sliderRect, float minSliderValue, float maxSliderValue);
 		void assignLabels(float startHours, float startMinutes, float endHours, float endMinutes, float sliderLeft, float top, float sliderWidth, string measure);
+		WorkerClass positionStartMarkerTemp(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions);
 		}
 }
 

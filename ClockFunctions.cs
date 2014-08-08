@@ -14,9 +14,11 @@ namespace AssemblyCSharp
 {
 		public interface ClockFunctions
 		{
-		bool checkTime(float marker, string startOrEnd, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes);
+		int checkTime(float marker, float minSliderValue, float maxSliderValue, string measure, float hours, float minutes);
 		List<float> deriveSliderHoursMins(float min, float max, float value, string measure);
 		string deriveElapsedTimeString(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
+		string deriveElapsedTimeString(List<float> answer);
+		//string deriveElapsedTimeString(List<float> answer, List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
 		List<float> deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
 		string timeLabel(string strName, float inHours, float inMinutes);
 		string compareElapsedTime(List<float> proposed, float answer);
