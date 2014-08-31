@@ -107,7 +107,7 @@ namespace AssemblyCSharp
 			return mySliderValue;
 		}
 
-		public WorkerClass positionStartMarkerTemp(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions) {
+		/*public WorkerClass positionStartMarkerTemp(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions) {
 			
 			float mySliderValue = 0.0f;
 			int myResult = 1; // it is assumed to be negative unless positively set otherwise
@@ -153,7 +153,7 @@ namespace AssemblyCSharp
 			myclass.sliderValue = mySliderValue;
 			myclass.contents = myclass.contents+ " .. calling function=" + callingFunction + " startMarker=" + startMarker.ToString() + " result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " setStartSliderValue=" + setStartSliderValue.ToString(); // remove debug code
 			return myclass;
-		}
+		}*/
 		
 		public Rect positionMarker (float marker, Rect sliderRect, float minSliderValue, float maxSliderValue) {
 			var y = sliderRect.y + sliderRect.height;

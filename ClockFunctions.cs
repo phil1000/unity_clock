@@ -8,12 +8,13 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 namespace AssemblyCSharp
 {
-		public interface ClockFunctions
-		{
+	public interface ClockFunctions
+	{
 		int checkTime(float marker, float minSliderValue, float maxSliderValue, string measure, float hours, float minutes);
 		List<float> deriveSliderHoursMins(float min, float max, float value, string measure);
 		string deriveElapsedTimeString(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
@@ -22,6 +23,7 @@ namespace AssemblyCSharp
 		List<float> deriveElapsedTime(List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes);
 		string timeLabel(string strName, float inHours, float inMinutes);
 		string compareElapsedTime(List<float> proposed, float answer);
-		}
+		List<float> setTime (float workingHours, float workingMinutes, GUIStyle HrMinLabel, GUIStyle HrMinText, GUIStyle myPlusMinusButtonStyle);
+	}
 }
 

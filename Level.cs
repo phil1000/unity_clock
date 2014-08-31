@@ -12,18 +12,17 @@ using System.Collections;
 using System.Collections.Generic;
 namespace AssemblyCSharp
 {
-	public interface Question {
-		int getLevel();
-		string getDescription();
-		float getStartHours ();
-		float getsStartMinutes ();
-		float getEndHours ();
-		float getEndMinutes ();
-		float getSliderValue ();
-		float getMaxSliderValue ();
-		float getMinSliderValue ();
-		string getMeasure () ;
-		List<float> getAnswer ();
+	public interface Level
+	{
+		void questionCompleted (Question question, List<float> givenAnswer, bool isCorrect) ;
+		void reset();
+		int getLevel ();
+		int getnumberOfQuestions () ;
+		int getnumberOfQuestionsCompleted ();
+		int getnumberAnswerCorrectly ();
+		List<Question> getUnansweredQuestions ();
+		Question getNextUnansweredQuestion();
+		List<AnsweredQuestion> getAnsweredQuestions ();
 	}
 }
 

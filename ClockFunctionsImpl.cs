@@ -231,6 +231,43 @@ namespace AssemblyCSharp
 			
 			return returnString;
 		}
+
+		public List<float> setTime (float workingHours, float workingMinutes, GUIStyle HrMinLabel, GUIStyle HrMinText, GUIStyle myPlusMinusButtonStyle) {
+			List<float> myTime = new List<float>();
+			GUI.Label (new Rect (10, 20, 60, 40), "Hours", HrMinLabel);
+			GUI.Label (new Rect (75, 20, 30, 40), workingHours.ToString (), HrMinText);
+			if (GUI.Button (new Rect (110,20,20,20), "+", myPlusMinusButtonStyle)) {
+				if (workingHours<12.0f) workingHours++;
+			}
+			if (GUI.Button (new Rect (110,40,20,20), "-",myPlusMinusButtonStyle )) {
+				if (workingHours>0.0f) workingHours--;
+			}
+			GUI.Label (new Rect (10, 65, 60, 40), "Minutes", HrMinLabel);
+			GUI.Label (new Rect (75, 65, 30, 40), workingMinutes.ToString(), HrMinText);
+			if (GUI.Button (new Rect (110,65,20,20), "+", myPlusMinusButtonStyle)) {
+				if (workingMinutes==45.0f) {
+					if (workingHours<=11.0f) {
+						workingMinutes=0.0f;
+						workingHours++;
+					}
+
+				}
+				else workingMinutes += 15.0f;
+			}
+			if (GUI.Button (new Rect (110,85,20,20), "-", myPlusMinusButtonStyle)) {
+				if (workingMinutes==0.0f) {
+					if (workingHours>=1.0f) {
+						workingMinutes=45.0f;
+						workingHours--;
+					}
+				}
+				else workingMinutes -= 15.0f;
+			}
+			myTime.Add(workingHours);
+			myTime.Add(workingMinutes);
+			return myTime;
+		}
+
 	}
 }
 

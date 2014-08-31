@@ -26,7 +26,7 @@ public class questionScript : MonoBehaviour {
 	private void loadQuestions() {
 		Question myQuestion = null;
 		questions = new List<Question>();
-		List<string> questionsArray = loadFromFile ("questionsNew.txt");
+		List<string> questionsArray = loadFromFile ("questionsNew1.txt");
 		string[] entries;
 
 		// The questions file contain multiple question lines,
@@ -37,30 +37,34 @@ public class questionScript : MonoBehaviour {
 			// ignore comment lines in the file i.e. those starting with "//"
 			if (!(line.Substring(0,2).Equals("//"))) {
 				entries = line.Split (',');
-				//float minSliderValue=float.Parse(entries[0])-2.0f;
 				float minSliderValue=0.0f;
 				float SliderValue=minSliderValue;
-				//float increment=0.0f;
 				float maxSliderValue;
-				if (entries[4].Equals("whole")) {
+				if (entries[6].Equals("whole")) {
 					maxSliderValue=12.0f;
 				} else {
-					if (entries[4].Equals("half")) {
+					if (entries[6].Equals("half")) {
 						maxSliderValue=24.0f;
 					} else {
 						maxSliderValue=48.0f;
 					}
 				}
-				//float maxSliderValue=minSliderValue + ((float.Parse(entries[2])+2.0f-minSliderValue)*increment);*/
-				myQuestion = new Question (float.Parse(entries[0]), 
-				                           float.Parse(entries[1]), 
-				                           float.Parse(entries[2]), 
-				                           float.Parse(entries[3]), 
-				                           SliderValue, 
-				                           maxSliderValue, 
-				                           minSliderValue, 
-				                           entries[4], 
-				                           float.Parse(entries[5]));
+
+				List<float> answer = new List<float>();
+				answer.Add (float.Parse(entries[7]));
+				answer.Add (float.Parse(entries[8]));
+
+				myQuestion = new QuestionImpl (int.Parse (entries[0]),
+				                          entries[1],
+				                          float.Parse(entries[2]), 
+				                          float.Parse(entries[3]), 
+				                          float.Parse(entries[4]), 
+				                          float.Parse(entries[5]), 
+				                          SliderValue, 
+				                          maxSliderValue, 
+				                          minSliderValue, 
+				                          entries[6], 
+				                          answer);
 				questions.Add (myQuestion);
 			}
 		}

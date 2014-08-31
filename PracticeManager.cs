@@ -43,26 +43,12 @@ public class PracticeManager : MonoBehaviour {
 	private float endMinutes;
 	private float workingHours;
 	private float workingMinutes;
+	private List<float> workingTime;
 	private List<float> answer;
 	private bool sliderGTElapsed=false;
 	private bool endTimeInvalid = false;
 	private Boolean elapsedIsSnapped;
-	/*
-	 * The logic for the slider values should be as follows 
-	 * ... 
-	 * the min value should be 2 hours before the start hour and the 
-	 * max value should be 2 hours after the end hour. 
-	 * e.g. if start time is 4pm and end time is 8pm, min=2pm and
-	 * max=10pm. Both are set to an hour mark i.e. zero minutes. 
-	 * If the time increments are in 30 minute slots then we need
-	 * double the number of slots between the start and end 
-	 * hours i.e. if min = 2pm and max = 10pm then we need 18 notches
-	 * .. if the increment is quarter hours then we would need 36 notches
-	 * 
-	 * This does mean that we cannot automatically use the slider value when moving the hands on the clock
-	 * and that we have to translate the slider value into a time
-	 * before sending the value into the draw function of OnGuiClock_mine
-	 */
+
 	private float sliderValue;
 	private float maxSliderValue;
 	private float minSliderValue;
@@ -85,10 +71,6 @@ public class PracticeManager : MonoBehaviour {
 
 	private float curveCallCount=0.0f;
 	private string answerStr="";
-	//private float temptempSliderValue=0.0f;
-	//private float tempbeforeSliderValue=0.0f;
-	//private float tempafterSliderValue=0.0f;
-	//private string positionMarkerResults="";
 
 	void Start() {
 		curveScript = Camera.main.GetComponent<CreateCurves>();
@@ -103,10 +85,6 @@ public class PracticeManager : MonoBehaviour {
 
 	void OnGUI ()
 	{
-		/*debug code
-		if (answer.Count > 0) {
-			GUI.Label (new Rect (20, 400, 250, 100), answerStr);
-		}*/
 		// Make a background box
 		GUI.Box(new Rect((Screen.width-820)/2,20,820,410), "", myBoxStyle);
 		
@@ -117,11 +95,6 @@ public class PracticeManager : MonoBehaviour {
 
 		//add the "New" and "Quit" buttons
 		addButtons (new Rect(20, 150, 150, 450));
-
-		//GUI.Label (new Rect (20, 400, 100, 40), temptempSliderValue.ToString ()); // remove debug code
-		//GUI.Label (new Rect (20, 490, 100, 40), "tempSlider before=" + tempbeforeSliderValue.ToString());
-		//GUI.Label (new Rect (20, 530, 100, 40), "tempSlider after=" + tempafterSliderValue.ToString ());
-		//GUI.Label (new Rect (20, 400, 400, 80), positionMarkerResults);
 
 		Rect startEndGroup = new Rect(Screen.width/2 - 148.0f, 30, 350, 450);
 		if (addStartState) {
@@ -215,7 +188,11 @@ public class PracticeManager : MonoBehaviour {
 
 		//present the time selector widget 
 		GUI.BeginGroup (new Rect (548, 210, 141, 175),timerStyle);
-		setTime ();
+
+		workingTime = myClockFunctions.setTime (workingHours, workingMinutes, HrMinLabel, HrMinText, myPlusMinusButtonStyle);
+		workingHours = workingTime [0];
+		workingMinutes = workingTime [1];
+
 		startHours = workingHours;
 		startMinutes = workingMinutes;
 		if (GUI.Button (new Rect (10,110,121,40), "OK", myOKButtonStyle)) {
@@ -252,7 +229,11 @@ public class PracticeManager : MonoBehaviour {
 
 		//present the time selector widget 
 		GUI.BeginGroup (new Rect (697, 210, 141, 175),timerStyle);
-		setTime ();
+		//setTime ();
+		workingTime = myClockFunctions.setTime (workingHours, workingMinutes, HrMinLabel, HrMinText, myPlusMinusButtonStyle);
+		workingHours = workingTime [0];
+		workingMinutes = workingTime [1];
+		// end of new code
 		endHours = workingHours;
 		endMinutes = workingMinutes;
 	
@@ -418,40 +399,6 @@ public class PracticeManager : MonoBehaviour {
 		
 
 		//GUI.EndGroup ();
-	}
-
-	void setTime() {
-
-		GUI.Label (new Rect (10, 20, 60, 40), "Hours", HrMinLabel);
-		GUI.Label (new Rect (75, 20, 30, 40), workingHours.ToString (), HrMinText);
-		if (GUI.Button (new Rect (110,20,20,20), "+", myPlusMinusButtonStyle)) {
-			if (workingHours<12.0f) workingHours++;
-		}
-		if (GUI.Button (new Rect (110,40,20,20), "-",myPlusMinusButtonStyle )) {
-			if (workingHours>0.0f) workingHours--;
-		}
-		GUI.Label (new Rect (10, 65, 60, 40), "Minutes", HrMinLabel);
-		GUI.Label (new Rect (75, 65, 30, 40), workingMinutes.ToString(), HrMinText);
-		if (GUI.Button (new Rect (110,65,20,20), "+", myPlusMinusButtonStyle)) {
-			if (workingMinutes==45.0f) {
-				if (workingHours<=11.0f) {
-					workingMinutes=0.0f;
-					workingHours++;
-				}
-
-			}
-			else workingMinutes += 15.0f;
-		}
-		if (GUI.Button (new Rect (110,85,20,20), "-", myPlusMinusButtonStyle)) {
-			if (workingMinutes==0.0f) {
-				if (workingHours>=1.0f) {
-					workingMinutes=45.0f;
-					workingHours--;
-				}
-			}
-			else workingMinutes -= 15.0f;
-		}
-
 	}
 
 	string setMeasure(float startMinutes, float endMinutes) {

@@ -8,22 +8,22 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 using System;
-using System.Collections;
-using System.Collections.Generic;
 namespace AssemblyCSharp
 {
-	public interface Question {
-		int getLevel();
-		string getDescription();
-		float getStartHours ();
-		float getsStartMinutes ();
-		float getEndHours ();
-		float getEndMinutes ();
-		float getSliderValue ();
-		float getMaxSliderValue ();
-		float getMinSliderValue ();
-		string getMeasure () ;
-		List<float> getAnswer ();
+	[Serializable]
+	public class PlayerLevelFlags
+	{
+		public readonly int id;
+		public readonly bool textTips;
+		public readonly bool arcTools;
+		public readonly bool sliderTool;
+		public PlayerLevelFlags (int id, bool textTips, bool arcTools, bool sliderTool)
+		{
+			this.id = id;
+			this.textTips = textTips;
+			this.arcTools = arcTools;
+			this.sliderTool = sliderTool;
+		}
 	}
 }
 
