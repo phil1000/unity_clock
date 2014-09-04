@@ -18,8 +18,8 @@ public class StartScript : MonoBehaviour {
 	public GUIStyle myOKButtonStyle;
 	public GUIStyle nameLable;
 	public GUIStyle nameText;
+	public GUIStyle feedbackStyle;
 	public Texture2D myAvatar;
-	private GUIStyle myStyle;
 	public float analogClockSize = 256;
 	public float analogClockCenterSize = 32;
 	public OnGUIClockHands myGuiClock;
@@ -113,12 +113,7 @@ public class StartScript : MonoBehaviour {
 	private void setFeedbackStyle() {
 		GUIStyle feedBox = new GUIStyle(GUI.skin.box);
 		feedBox.normal.background = myAvatar;
-		myStyle = new GUIStyle(GUI.skin.label); 
-		myStyle.fontSize = 18;
-		myStyle.fontStyle = FontStyle.BoldAndItalic;
-		myStyle.alignment = TextAnchor.MiddleCenter;
-		myStyle.normal.textColor = Color.white;
-		myFeedbackFunctions.updateStyles (feedBox, myStyle);
+		myFeedbackFunctions.updateStyles (feedBox, feedbackStyle);
 	}
 	                              
 }

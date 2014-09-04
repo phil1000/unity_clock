@@ -71,13 +71,14 @@ namespace AssemblyCSharp
 			return sliderValue;
 		}
 
-		public float positionStartMarker(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions) {
+		public float positionStartMarker(string feedbackPrefix, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions) {
 
 			float mySliderValue = 0.0f;
 			int myResult = 1; // it is assumed to be negative unless positively set otherwise
 
 			if (startMarker == 99.0f) {
-				myFeedbackFunctions.giveFeedback(feedbackRect, "Now set the start marker by double clicking where you think the start time is on the timeline");
+				string tempStr = feedbackPrefix + " set the start marker by double clicking where you think the start time is on the timeline";
+				myFeedbackFunctions.giveFeedback(feedbackRect, tempStr);
 			} else {
 				startMarker = Mathf.Round(startMarker);
 				myResult = myClockFunctions.checkTime(startMarker, minSliderValue, maxSliderValue, measure, startHours, startMinutes);
@@ -102,58 +103,8 @@ namespace AssemblyCSharp
 					}
 				}
 			}
-			//GUI.Label (new Rect (20, 450, 300, 40), "PositionStartMarker output .. result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " startMarker=" + startMarker.ToString()); // remove debug code
-			//GUI.Label (new Rect (20, 400, 400, 80), "PositionStartMarker output .. calling function=" + callingFunction + " startMarker=" + startMarker.ToString() + " result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " setStartSliderValue=" + setStartSliderValue.ToString()); // remove debug code
 			return mySliderValue;
 		}
-
-		/*public WorkerClass positionStartMarkerTemp(string callingFunction, Rect feedbackRect, Rect sliderRect, float minSliderValue, float maxSliderValue, string measure, float startHours, float startMinutes, float endHours, float endMinutes, ClockFunctions myClockFunctions, GUIStyle myMarkerStyle, UserFeedbackFunctions myFeedbackFunctions) {
-			
-			float mySliderValue = 0.0f;
-			int myResult = 1; // it is assumed to be negative unless positively set otherwise
-			WorkerClass myclass = new WorkerClass ();
-
-			if (startMarker == 99.0f) {
-				myFeedbackFunctions.giveFeedback(feedbackRect, "Now set the start marker by double clicking where you think the start time is on the timeline");
-			} else {
-				startMarker = Mathf.Round(startMarker);
-				myResult = myClockFunctions.checkTime(startMarker, minSliderValue, maxSliderValue, measure, startHours, startMinutes);
-				myclass.contents = "clock func results="+myResult.ToString()+ " ..";
-				if (myResult<0) {
-					myFeedbackFunctions.giveFeedback(feedbackRect, "That's not quite right, you are a bit early. Try again");
-					mySliderValue = 0.0f;
-					myclass.contents = myclass.contents+" went into result <0 ";
-				} else {
-					if (myResult > 0) {
-						myFeedbackFunctions.giveFeedback(feedbackRect, "That's not quite right, you are a bit late. Try again");
-						mySliderValue = 0.0f;
-						myclass.contents = myclass.contents+" went into result >0 ";
-					} else {
-						// position the startMarker but first align it precisely
-						myclass.contents = myclass.contents+" went into result==0 ";
-						myclass.contents = myclass.contents+" startmarker = " + startMarker.ToString();
-						startMarker = Mathf.Round(startMarker);
-						if (setStartSliderValue) {
-							mySliderValue=startMarker;
-							setStartSliderValue=false;
-						}
-
-						Rect startRect = positionMarker(startMarker, sliderRect, minSliderValue, maxSliderValue);
-						myclass.contents = myclass.contents+" calling positionMarker " + startRect.ToString();
-						if (GUI.Button(startRect, "S", myMarkerStyle)) {
-							mySliderValue=startMarker;
-						}
-					}
-				}
-			}
-			//GUI.Label (new Rect (20, 450, 300, 40), "PositionStartMarker output .. result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " startMarker=" + startMarker.ToString()); // remove debug code
-			//GUI.Label (new Rect (20, 400, 400, 80), "PositionStartMarker output .. calling function=" + callingFunction + " startMarker=" + startMarker.ToString() + " result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " setStartSliderValue=" + setStartSliderValue.ToString()); // remove debug code
-			//return mySliderValue;
-
-			myclass.sliderValue = mySliderValue;
-			myclass.contents = myclass.contents+ " .. calling function=" + callingFunction + " startMarker=" + startMarker.ToString() + " result="+myResult.ToString () + " mySliderValue=" + mySliderValue.ToString() + " setStartSliderValue=" + setStartSliderValue.ToString(); // remove debug code
-			return myclass;
-		}*/
 		
 		public Rect positionMarker (float marker, Rect sliderRect, float minSliderValue, float maxSliderValue) {
 			var y = sliderRect.y + sliderRect.height;

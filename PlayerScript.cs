@@ -17,7 +17,7 @@ public class PlayerScript : MonoBehaviour {
 	private static string PLAYER_FILE = "player.txt";
 	private static string PLAYER_LEVEL_FILE = "playerLevel.txt";
 	//private static string QUESTION_FILE = "questionsNew1.txt";
-	private static string QUESTION_FILE = "questionsNew2.txt";
+	private static string QUESTION_FILE = "questionsNew3.txt";
 	private Player currentPlayer;
 	private bool loggedIn = false;
 	

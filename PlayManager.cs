@@ -28,6 +28,7 @@ public class PlayManager : MonoBehaviour {
 	public GUIStyle HrMinLabel;
 	public GUIStyle HrMinText;
 	public GUIStyle thumbStyle;
+	public GUIStyle feedbackStyle;
 	private GUIStyle sliderBackgroundStyle;
 
 	// A game object with an attached script is required in order to maintain state across the 
@@ -50,7 +51,8 @@ public class PlayManager : MonoBehaviour {
 	private List<float> answer;
 	private bool validAnswer=false;
 	private bool answerSet=false;
-	private string answerFeedback;
+	private bool levelCompleted = false;
+	//private string answerFeedback;
 	private const float PASS_LEVEL = 0.6f;
 	private Rect timeSelectorRect;
 
@@ -58,6 +60,7 @@ public class PlayManager : MonoBehaviour {
 	private float maxSliderValue;
 	private float minSliderValue;
 	private string measure;
+	private bool sliderGTElapsed=false;
 
 	private GUIStyle myStyle; 
 	private GUIStyle myBackgroundStyle;
@@ -69,9 +72,12 @@ public class PlayManager : MonoBehaviour {
 	private SliderFunctions mySliderFunctions;
 	private UserFeedbackFunctions myFeedbackFunctions;
 	private Rect feedbackRect;
+	//private string answerString;
 	private string feedbackString;
 	private bool sliderSet=false;
 	private PlayerLevelFlags myPlayerLevelFlags;
+	private bool hintsOn;
+	private string myPersistedLevelCompleted;
 	
 	void Start() {
 		curveScript = Camera.main.GetComponent<CreateCurves>();
@@ -79,7 +85,7 @@ public class PlayManager : MonoBehaviour {
 		mySliderFunctions = new SliderFunctionsImpl ();
 		myDrawClocks = new DrawClockFunctionsImpl ();
 
-		feedbackRect = new Rect (20, 20, 450, 300);
+		feedbackRect = new Rect (20, 20, 475, 375);
 		timeSelectorRect = new Rect (825, 210, 141, 175);
 		myFeedbackFunctions = new UserFeedbackFunctionsImpl ();
 	}
@@ -89,10 +95,12 @@ public class PlayManager : MonoBehaviour {
 		myPlayerScript = (PlayerScript) myPlayers.GetComponent ("PlayerScript");
 		this.elapsedIsSnapped = myPlayerScript.elapsedIsSnapped;
 		myPlayer = myPlayerScript.getCurrentPlayer ();
-		answerFeedback = "";
+		//answerFeedback = "";
 		feedbackString = "";
+		//answerString = "";
 		myQuestion = loadNextQuestion ();
 		myPlayerLevelFlags = myPlayer.getPlayerLevelFlags ();
+		hintsOn = false;
 	}
 	
 	void OnGUI ()
@@ -103,9 +111,13 @@ public class PlayManager : MonoBehaviour {
 		setStyles ();
 		GUIStyle feedBox = new GUIStyle(GUI.skin.box);
 		feedBox.normal.background = myAvatar;
-		myFeedbackFunctions.updateStyles (feedBox, myStyle);
+		myFeedbackFunctions.updateStyles (feedBox, feedbackStyle);
 
-		addButtons (new Rect(20, 150, 150, 450));
+		string myLevelString = addButtons (new Rect(20, 150, 150, 450));
+		if (!myLevelString.Equals ("")) {
+			feedbackString = myLevelString;
+			myPersistedLevelCompleted = myLevelString;
+		}
 
 		//position and label start and end clocks
 		GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 30, 350, 450));
@@ -118,101 +130,119 @@ public class PlayManager : MonoBehaviour {
 		myStyle.fontSize = temp;
 		GUI.EndGroup();
 
-		if (!feedbackString.Equals(""))
-			myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
-
-		if (myPlayerLevelFlags.sliderTool) {
-			Rect sliderRect = new Rect(190,480,1000,60);
-
-			//present the time selector widget if the slider has been set
-			if (sliderSet) {
-				setTimeandCheckAnswerProvided(timeSelectorRect);
-			/*GUI.BeginGroup (timeSelectorRect,timerStyle);
-		
-			answer = myClockFunctions.setTime (workingHours, workingMinutes, HrMinLabel, HrMinText, myPlusMinusButtonStyle);
-			workingHours = answer [0];
-			workingMinutes = answer [1];
-
-			if (GUI.Button (new Rect (10,110,121,40), "Check", myOKButtonStyle)) {
-				if ((answer [0] != 0.0f) || (answer [1] != 0.0f)) {
-					answerSet=true;
-					//List<float> qAnswer = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ().getAnswer();
-					List<float> qAnswer = myQuestion.getAnswer();
-					if ((qAnswer[0]==answer [0]) && (qAnswer[1]==answer [1])) {
-						//Question myQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
-						validAnswer=true;
-						myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
-
-						answerFeedback="Great, that's correct. Now click Next Question to get another question";
-					} else {
-						//Question myQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
-						validAnswer=false;
-						myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
-
-						answerFeedback="That's not quite right. Try again or click Next Question to skip to the next question";
-					}
-				}
-			}
-			GUI.EndGroup ();
-
-			if (!answerFeedback.Equals(""))
-				myFeedbackFunctions.giveFeedback (feedbackRect, answerFeedback);
-			*/
-			//position the start marker based on previously set value
-				float tempSliderValue = 0.0f;
-				float startMarker = mySliderFunctions.getStartMarkerValue ();
-				tempSliderValue = mySliderFunctions.positionStartMarker (startMarker, sliderRect, minSliderValue, maxSliderValue, myMarkerStyle);
-				if (tempSliderValue!=0.0f) sliderValue = tempSliderValue;
-
-				// Calculate and display the elapsed time. Nothing will be displayed if elapsed time is < 0.
-				List<float> sliderTime = myClockFunctions.deriveSliderHoursMins(minSliderValue, maxSliderValue, sliderValue, measure);
-				string elapsedString = myClockFunctions.deriveElapsedTimeString(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
-				if (!elapsedString.Equals ("")) {
-
-					if (myPlayerLevelFlags.textTips) 
-						GUI.Box (new Rect (Screen.width/2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
-
-					if (myPlayerLevelFlags.arcTools) {
-						curveScript.removeCurves();
-						curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes, endHours, endMinutes);
-						writeCurveLabels(sliderRect.y-24);
-					}
-				} else {
-					if (myPlayerLevelFlags.arcTools) 
-						curveScript.removeCurves();
-				}
-				//position slider clock
-				myDrawClocks.positionClock (Screen.width - analogClockSize - 580, 200, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
-
-			} else {
-				// slider has not been set 
-				Event e = Event.current;
-				if (e.isMouse && e.type == EventType.MouseDown && e.clickCount == 2) {
-					mySliderFunctions.setStartMarkerValue(sliderValue);
-				}
-
-				//position the start marker for the first time
-				if (myQuestion!=null) {
-					float tempSliderValue = mySliderFunctions.positionStartMarker ("blah",feedbackRect, sliderRect, minSliderValue, maxSliderValue, measure, startHours, startMinutes, endHours, endMinutes, myClockFunctions, myMarkerStyle, myFeedbackFunctions);
-					if (tempSliderValue!=0.0f) { 
-						sliderValue = tempSliderValue;
-						sliderSet=true;
-					}
-				}
-			}
-
-			//position and label all the slider widgets... clock and timeline
-			//load the timeline and slider clock
-
-			//position and label the timeline
-			sliderValue = GUI.HorizontalSlider (sliderRect, sliderValue, minSliderValue, maxSliderValue, sliderBackgroundStyle, thumbStyle);
-			mySliderFunctions.assignLabels(0.0f, startMinutes, 12.0f, endMinutes, sliderRect.x, sliderRect.y, sliderRect.width, measure);
+		if (myPlayer.isFinished ()) {
+			myFeedbackFunctions.giveFeedback (feedbackRect, "Well Done. You have finished all questions and levels.");
 		} else {
-			setTimeandCheckAnswerProvided(timeSelectorRect);
+
+			if (myPlayerLevelFlags.sliderTool) {
+				if ((!feedbackString.Equals ("")) && (sliderSet))
+					// the feedback messages are provided by slider set
+					myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+
+				Rect sliderRect = new Rect (190, 480, 1000, 60);
+				//present the time selector widget if the slider has been set
+				if (sliderSet) {
+					if ((!answerSet) && (!levelCompleted)) {
+						//feedbackString = "Great. Now move the slider button up and down and see what happens to the clock ";
+						feedbackString = "Great. Now enter your answer for the elasped time between the start and end times. Click Check when you are happy with your answer";
+						if ((myPlayerLevelFlags.textTips) && (hintsOn) ) 
+							feedbackString = feedbackString + "\n\n\nTIPS: * Move the slider button up and down and see what happens to the clock ";
+					}
+					//position the start marker based on previously set value
+					float tempSliderValue = 0.0f;
+					float startMarker = mySliderFunctions.getStartMarkerValue ();
+					tempSliderValue = mySliderFunctions.positionStartMarker (startMarker, sliderRect, minSliderValue, maxSliderValue, myMarkerStyle);
+					if (tempSliderValue != 0.0f)
+						sliderValue = tempSliderValue;
+					// Calculate and display the elapsed time. Nothing will be displayed if elapsed time is < 0.
+					List<float> sliderTime = myClockFunctions.deriveSliderHoursMins (minSliderValue, maxSliderValue, sliderValue, measure);
+					string elapsedString = myClockFunctions.deriveElapsedTimeString (sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
+					if (!elapsedString.Equals ("")) {
+						if (myPlayerLevelFlags.textTips) {
+							GUI.Box (new Rect (Screen.width / 2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
+							if ( (!answerSet) && (!levelCompleted) && (hintsOn) )
+								feedbackString = feedbackString + "and the elapsed time.";
+						}
+
+						if (myPlayerLevelFlags.arcTools) {
+							curveScript.removeCurves ();
+							// this works in game/test mode where the y coordinate resolves to 120
+							//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes, endHours, endMinutes);
+							//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, sliderRect.y-360, startHours, startMinutes, endHours, endMinutes);
+							//this works in app.exe mode where the y coordinate resolves to 290
+							//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 290, startHours, startMinutes, endHours, endMinutes);
+							curveScript.addCurves (sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, sliderRect.y - 190, startHours, startMinutes, endHours, endMinutes);
+							writeCurveLabels (sliderRect.y - 24);
+							if ((!answerSet) && (!levelCompleted) && ((myPlayerLevelFlags.textTips) && (hintsOn)) ) {
+								feedbackString = feedbackString + " \n * Also notice how the arcs are added as you increase the elapsed time.";
+								feedbackString = feedbackString + " \n * Try counting up the times on the arcs to work out the total elasped time";
+							}
+						}
+					} else {
+						if (myPlayerLevelFlags.arcTools) 
+							curveScript.removeCurves ();
+					}
+
+					//position slider clock
+					myDrawClocks.positionClock (Screen.width - analogClockSize - 580, 200, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
+
+					//string tempStr = setTimeandCheckAnswerProvided(timeSelectorRect);
+					//if (!tempStr.Equals("")) feedbackString = tempStr;
+					string answerString = setTimeandCheckAnswerProvided (timeSelectorRect);
+					if (!answerString.Equals (""))
+						feedbackString = answerString;
+				} else {
+					// slider has not been set 
+					Event e = Event.current;
+					if (e.isMouse && e.type == EventType.MouseDown && e.clickCount == 2) {
+						mySliderFunctions.setStartMarkerValue (sliderValue);
+					}
+
+					//position the start marker for the first time
+					if (myQuestion != null) {
+						//feedbackString = feedbackString + " questions at this level " + myQuestion.getDescription();
+						//feedbackString = myQuestion.getDescription();
+						//feedbackString = "You have been given a start and end time. First ";
+						float tempSliderValue = mySliderFunctions.positionStartMarker (feedbackString, feedbackRect, sliderRect, minSliderValue, maxSliderValue, measure, startHours, startMinutes, endHours, endMinutes, myClockFunctions, myMarkerStyle, myFeedbackFunctions);
+						if (tempSliderValue != 0.0f) { 
+							sliderValue = tempSliderValue;
+							sliderSet = true;
+							levelCompleted = false;
+						}
+					}
+				}
+
+				//position and label all the slider widgets... clock and timeline
+				//load the timeline and slider clock
+				//position and label the timeline
+				sliderValue = GUI.HorizontalSlider (sliderRect, sliderValue, minSliderValue, maxSliderValue, sliderBackgroundStyle, thumbStyle);
+				mySliderFunctions.assignLabels (0.0f, startMinutes, 12.0f, endMinutes, sliderRect.x, sliderRect.y, sliderRect.width, measure);
+			} else {
+				//No tools provided
+
+				if (!feedbackString.Equals (""))
+					myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+
+				if (!answerSet) {
+					if  (!levelCompleted)
+						feedbackString = "Please enter your answer for the elasped time between the start and end times. Click Check when you are happy with your answer";
+					else
+						feedbackString = myPersistedLevelCompleted + " Please enter your answer for the elasped time between the start and end times. Click Check when you are happy with your answer";
+				}
+
+				string answerString = setTimeandCheckAnswerProvided (timeSelectorRect);
+				if (!answerString.Equals ("")) {
+					feedbackString = answerString;
+					levelCompleted=false;
+				}
+				//else feedbackString = myLevelString + " Please enter your answer for the elasped time between the start and end times. Click Check when you are happy with your answer";
+
+			}
 		}
 	}
 
-	void setTimeandCheckAnswerProvided(Rect timeSelectorRect) {
+	string setTimeandCheckAnswerProvided(Rect timeSelectorRect) {
+		string myStr = "";
 		GUI.BeginGroup (timeSelectorRect,timerStyle);
 		
 		answer = myClockFunctions.setTime (workingHours, workingMinutes, HrMinLabel, HrMinText, myPlusMinusButtonStyle);
@@ -229,20 +259,24 @@ public class PlayManager : MonoBehaviour {
 					validAnswer=true;
 					myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
 					
-					answerFeedback="Great, that's correct. Now click Next Question to get another question";
+					//answerFeedback="Great, that's correct. Now click Next Question to get another question";
+					myStr="Great, that's correct. Now click Next Question to get another question";
 				} else {
 					//Question myQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
 					validAnswer=false;
 					myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
 					
-					answerFeedback="That's not quite right. Try again or click Next Question to skip to the next question";
+					//answerFeedback="That's not quite right. Try again or click Next Question to skip to the next question";
+					myStr="That's not quite right. Try again or click Next Question to skip to the next question";
 				}
 			}
 		}
 		GUI.EndGroup ();
+
+		return myStr;
 		
-		if (!answerFeedback.Equals(""))
-			myFeedbackFunctions.giveFeedback (feedbackRect, answerFeedback);
+		//if (!answerFeedback.Equals(""))
+		//	myFeedbackFunctions.giveFeedback (feedbackRect, answerFeedback);
 	}
 
 	void initialiseForNewQuestion() {
@@ -250,13 +284,16 @@ public class PlayManager : MonoBehaviour {
 		curveScript.removeCurves();
 		validAnswer=false;
 		sliderSet = false;
-		answerFeedback="";
+		feedbackString="";
+		//answerString = "";
 		workingHours=0.0f;
 		workingMinutes=0.0f;
 		myPlayerLevelFlags = myPlayer.getPlayerLevelFlags ();
+		hintsOn = false;
 	}
 
-	void addButtons(Rect buttonRect) {
+	string addButtons(Rect buttonRect) {
+		string myString = "";
 		//group buttons together .. then all button coordinates are relative to the group coordinates
 		GUI.BeginGroup(buttonRect);
 		//application quit button
@@ -266,12 +303,29 @@ public class PlayManager : MonoBehaviour {
 		
 		//next question button
 		if (GUI.Button (new Rect (10, 20, 90, 90), "Next \nQuestion", myButtonStyle)) {
-			evaluateAnswer();
+			myString = evaluateAnswer();
 		} 
+
+		//hint button
+		if ((myPlayerLevelFlags.textTips) && (sliderSet) && (!answerSet)) {
+			if (hintsOn) {
+				if (GUI.Button (new Rect (10, 220, 90, 90), "Hint \nOff?", myButtonStyle)) {
+					hintsOn=false;
+				} 
+			} else {
+				if (GUI.Button (new Rect (10, 220, 90, 90), "Hint \nOn?", myButtonStyle)) {
+					hintsOn=true;
+				} 
+			}
+		}
+
 		GUI.EndGroup();
+
+		return myString;
 	}
 
-	void evaluateAnswer() {
+	string evaluateAnswer() {
+		string myString = "";
 		int correctAnswers = myPlayer.getcurrentQuestionLevel().getnumberAnswerCorrectly();
 		int noQuestions = myPlayer.getcurrentQuestionLevel().getnumberOfQuestions();
 
@@ -284,28 +338,29 @@ public class PlayManager : MonoBehaviour {
 		myQuestion = loadNextQuestion (); 
 		
 		if (myQuestion==null) {
-			
-			feedbackString = "You have completed all the questions in this level. \nYou got " + correctAnswers + " out of " + noQuestions;
+			levelCompleted=true;
+			myString = "You have completed all the questions in this level. You got " + correctAnswers + " out of " + noQuestions;
 			if ((correctAnswers/noQuestions)>= PASS_LEVEL) {
 				if (myPlayer.updatePlayerLevel()) {
-					feedbackString= feedbackString + "You have now moved to level" + myPlayer.getcurrentPlayerLevel().ToString () + "." + myPlayer.getcurrentQuestionLevel().getLevel().ToString(); 
+					myString= myString + "\nYou have now moved to level " + myPlayer.getcurrentPlayerLevel().ToString () + "." + myPlayer.getcurrentQuestionLevel().getLevel().ToString() + " "; 
 					myQuestion = loadNextQuestion (); 
 					initialiseForNewQuestion();
 				} else {
-					feedbackString= feedbackString + "You have finished all the levels in this game. Well done!";
+					//myString= myString + "You have finished all the levels in this game. Well done!";
+					myPlayer.setToFinished();
 				}
 			} else {
-				feedbackString= feedbackString + "You just need a little bit more practice at this level. \n";
-				feedbackString = feedbackString + "Why not try using the Practice area to check your understanding before trying again";
+				myString= myString + "You just need a little bit more practice at this level. \n";
+				myString = myString + "You could also try using the Practice area to check your understanding before trying again";
 				myPlayer.getcurrentQuestionLevel().reset();
 				myQuestion = loadNextQuestion (); 
 				initialiseForNewQuestion();
 			}
 
-		} else {
-			feedbackString="";
-		}
+		} 
+
 		myPlayerScript.Save ();
+		return myString;
 	}
 
 	void writeCurveLabels(float height) {

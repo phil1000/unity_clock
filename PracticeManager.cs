@@ -28,12 +28,10 @@ public class PracticeManager : MonoBehaviour {
 	public GUIStyle myMarkerStyle;
 	public GUIStyle myReturnButton;
 	public GUIStyle myBoxStyle;
+	public GUIStyle feedbackStyle;
 	
 	private GUIStyle sliderBackgroundStyle;
 	public GUIStyle thumbStyle;
-	
-	//private GameObject myClock;
-	//private OnGUIClockHands myClockHandsScript;
 	
 	// the start, end hours & minutes should be provided as parameters
 	// by either a calling scene or by getNextQuestion button
@@ -77,9 +75,9 @@ public class PracticeManager : MonoBehaviour {
 		myClockFunctions = new ClockFunctionsImpl ();
 		mySliderFunctions = new SliderFunctionsImpl ();
 		myDrawClocks = new DrawClockFunctionsImpl ();
-		
 		feedbackRect = new Rect (20, 20, 450, 350);
 		myFeedbackFunctions = new UserFeedbackFunctionsImpl ();
+
 		answer = new List<float> ();
 	}
 
@@ -91,8 +89,8 @@ public class PracticeManager : MonoBehaviour {
 		setStyles ();
 		GUIStyle feedBox = new GUIStyle(GUI.skin.box);
 		feedBox.normal.background = myAvatar;
-		myFeedbackFunctions.updateStyles (feedBox, myStyle);
-
+		myFeedbackFunctions.updateStyles (feedBox, feedbackStyle);
+		
 		//add the "New" and "Quit" buttons
 		addButtons (new Rect(20, 150, 150, 450));
 
@@ -316,7 +314,7 @@ public class PracticeManager : MonoBehaviour {
 		//position the start marker
 
 		float tempSliderValue = 0.0f;
-		tempSliderValue = mySliderFunctions.positionStartMarker ("startNotSet" , feedbackRect, sliderRect, minSliderValue, maxSliderValue, measure, startHours, startMinutes, endHours, endMinutes, myClockFunctions, myMarkerStyle, myFeedbackFunctions);
+		tempSliderValue = mySliderFunctions.positionStartMarker ("Now" , feedbackRect, sliderRect, minSliderValue, maxSliderValue, measure, startHours, startMinutes, endHours, endMinutes, myClockFunctions, myMarkerStyle, myFeedbackFunctions);
 
 		if (tempSliderValue != 0.0f) {
 			sliderValue = tempSliderValue;
@@ -391,7 +389,13 @@ public class PracticeManager : MonoBehaviour {
 		if (!elapsedString.Equals ("")) {
 			GUI.Box (new Rect (Screen.width/2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
 			curveScript.removeCurves();
-			curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes, endHours, endMinutes);
+
+			// this works in game/test mode where the y coordinate resolves to 120
+			//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 120, startHours, startMinutes, endHours, endMinutes);
+			//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, sliderRect.y-360, startHours, startMinutes, endHours, endMinutes);
+			//this works in app.exe mode where the y coordinate resolves to 290
+			//curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, 290, startHours, startMinutes, endHours, endMinutes);
+			curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, sliderRect.y-190, startHours, startMinutes, endHours, endMinutes);
 			curveCallCount++;
 			writeCurveLabels(sliderRect.y-24);
 			//GUI.Label(new Rect(100,400,200,50), "curveNo="+curveScript.getNumberOfCurves().ToString() + " sliderHrs="+sliderTime[0].ToString() + myString);

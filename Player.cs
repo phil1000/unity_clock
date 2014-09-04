@@ -13,6 +13,8 @@ namespace AssemblyCSharp
 	public interface Player
 	{
 		int getId();
+		bool isFinished();
+		void setToFinished();
 		int getcurrentPlayerLevel();
 		PlayerLevelFlags getPlayerLevelFlags() ;
 		Level getcurrentQuestionLevel();

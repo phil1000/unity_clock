@@ -24,6 +24,7 @@ namespace AssemblyCSharp
 		private int maxPlayerLevel;
 		private int minPlayerLevel;
 		private int score;
+		private bool playerHasFinished;
 
 		private Dictionary<int,Dictionary<int, Level>> playerLevelsHash;
 		private Dictionary<int,PlayerLevelFlags> playerLevelsFlagsHash;
@@ -35,6 +36,7 @@ namespace AssemblyCSharp
 			minPlayerLevel = 99;
 			maxQuestionLevel = 0;
 			minQuestionLevel = 99;
+			playerHasFinished = false;
 
 			playerLevelsHash = new Dictionary<int,Dictionary<int, Level>>  ();
 			playerLevelsFlagsHash = new Dictionary<int,PlayerLevelFlags> ();
@@ -49,6 +51,14 @@ namespace AssemblyCSharp
 
 			this.currentPlayerLevel = minPlayerLevel;
 			this.currentQuestionLevel = minQuestionLevel;
+		}
+
+		public bool isFinished() {
+			return playerHasFinished;
+		}
+
+		public void setToFinished() {
+			playerHasFinished = true;
 		}
 
 		public bool updatePlayerLevel() {

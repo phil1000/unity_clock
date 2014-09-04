@@ -24,7 +24,7 @@ namespace AssemblyCSharp
 		public void giveFeedback(Rect feedbackRect, string strMessage) {
 			GUI.BeginGroup (feedbackRect);
 			GUI.Label(new Rect(0, 0, 100, 100), "", boxStyle); 
-			GUI.Label(new Rect(100, 0, 300, 150), strMessage, textStyle); 
+			GUI.Label(new Rect(100, 0, 350, 250), strMessage, textStyle); 
 			GUI.EndGroup ();
 		}
 	}
