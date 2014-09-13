@@ -59,6 +59,13 @@ public class StartScript : MonoBehaviour {
 		//position and label the current time clock
 		myDrawClocks.positionClock (((Screen.width/2) - (analogClockSize/2)), ((Screen.height/2) - (analogClockSize/2)), analogClockSize, "", myTextStyle, myGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
 
+		if (myPlayerScript.isInvalidFiles ()) {
+			//the config files are caput and so need to tell user this
+			string feedbackString = "There is a problem with the config files so please correct and then re-run";
+			myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+			return;
+		}
+
 		if (myPlayerScript.isLoggedIn()) {
 
 			myPlayer = myPlayerScript.getCurrentPlayer();

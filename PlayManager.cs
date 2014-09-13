@@ -53,7 +53,7 @@ public class PlayManager : MonoBehaviour {
 	private bool answerSet=false;
 	private bool levelCompleted = false;
 	//private string answerFeedback;
-	private const float PASS_LEVEL = 0.6f;
+	private float passThreshold;
 	private Rect timeSelectorRect;
 
 	private float sliderValue;
@@ -74,7 +74,7 @@ public class PlayManager : MonoBehaviour {
 	private Rect feedbackRect;
 	//private string answerString;
 	private string feedbackString;
-	private bool sliderSet=false;
+	private bool sliderSet = false;
 	private PlayerLevelFlags myPlayerLevelFlags;
 	private bool hintsOn;
 	private string myPersistedLevelCompleted;
@@ -94,12 +94,11 @@ public class PlayManager : MonoBehaviour {
 		myPlayers = GameObject.Find("Player");
 		myPlayerScript = (PlayerScript) myPlayers.GetComponent ("PlayerScript");
 		this.elapsedIsSnapped = myPlayerScript.elapsedIsSnapped;
+		this.passThreshold = myPlayerScript.getPassThreshold ();
 		myPlayer = myPlayerScript.getCurrentPlayer ();
-		//answerFeedback = "";
 		feedbackString = "";
-		//answerString = "";
-		myQuestion = loadNextQuestion ();
 		myPlayerLevelFlags = myPlayer.getPlayerLevelFlags ();
+		myQuestion = loadNextQuestion ();
 		hintsOn = false;
 	}
 	
@@ -119,24 +118,25 @@ public class PlayManager : MonoBehaviour {
 			myPersistedLevelCompleted = myLevelString;
 		}
 
-		//position and label start and end clocks
-		GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 30, 350, 450));
-		float startEndClockSize = 128.0f;
-		float centreSize = 12.0f;
-		int temp = myStyle.fontSize;
-		myStyle.fontSize = 12;
-		myDrawClocks.positionClock (20, 20, startEndClockSize, startHours, startMinutes, 0.0f, "Start time", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, centreSize);
-		myDrawClocks.positionClock (20 + startEndClockSize + 20, 20, startEndClockSize, endHours, endMinutes, 0.0f, "End time", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, centreSize);
-		myStyle.fontSize = temp;
-		GUI.EndGroup();
-
 		if (myPlayer.isFinished ()) {
 			myFeedbackFunctions.giveFeedback (feedbackRect, "Well Done. You have finished all questions and levels.");
 		} else {
 
+			//position and label start and end clocks
+			GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 30, 350, 450));
+			float startEndClockSize = 128.0f;
+			float centreSize = 12.0f;
+			int temp = myStyle.fontSize;
+			myStyle.fontSize = 12;
+			myDrawClocks.positionClock (20, 20, startEndClockSize, startHours, startMinutes, 0.0f, "Start time", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, centreSize);
+			myDrawClocks.positionClock (20 + startEndClockSize + 20, 20, startEndClockSize, endHours, endMinutes, 0.0f, "End time", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, centreSize);
+			myStyle.fontSize = temp;
+			GUI.EndGroup();
+
 			if (myPlayerLevelFlags.sliderTool) {
 				if ((!feedbackString.Equals ("")) && (sliderSet))
-					// the feedback messages are provided by slider set
+					// the slider has been set and so give any non slider related feedback here
+					// - if the slider has not been set then  feedback messages are provided by slider set
 					myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
 
 				Rect sliderRect = new Rect (190, 480, 1000, 60);
@@ -252,21 +252,23 @@ public class PlayManager : MonoBehaviour {
 		if (GUI.Button (new Rect (10,110,121,40), "Check", myOKButtonStyle)) {
 			if ((answer [0] != 0.0f) || (answer [1] != 0.0f)) {
 				answerSet=true;
-				//List<float> qAnswer = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ().getAnswer();
+
 				List<float> qAnswer = myQuestion.getAnswer();
 				if ((qAnswer[0]==answer [0]) && (qAnswer[1]==answer [1])) {
-					//Question myQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
+
 					validAnswer=true;
 					myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
-					
-					//answerFeedback="Great, that's correct. Now click Next Question to get another question";
-					myStr="Great, that's correct. Now click Next Question to get another question";
+					//myStr="Great, that's correct. Now click Next Question to get another question";
+					// new code here
+					myStr="Great, that's correct.\n";
+					Question tempQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
+					if (tempQuestion==null)
+						myStr = myStr + checkIfLevelCompleted();
+					myStr = myStr + "\nNow click Next Question to get another question";
+					// end of new code
 				} else {
-					//Question myQuestion = myPlayer.getcurrentQuestionLevel ().getNextUnansweredQuestion ();
 					validAnswer=false;
-					myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
-					
-					//answerFeedback="That's not quite right. Try again or click Next Question to skip to the next question";
+					//myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
 					myStr="That's not quite right. Try again or click Next Question to skip to the next question";
 				}
 			}
@@ -298,13 +300,26 @@ public class PlayManager : MonoBehaviour {
 		GUI.BeginGroup(buttonRect);
 		//application quit button
 		if (GUI.Button (new Rect (10,120,90,90), "Return", myReturnButton)) {
+			// before exiting to start scene, just check if a level has been completed so that
+			// the questions from the next level can be preloaded in anticipation for next 
+			// time the user comes into play environment
+			// load next question does not remove any items from the unanswered question list
+			// and so can be called multiple times without moving the user on
+			myQuestion=loadNextQuestion();
+			if (myQuestion==null) {
+				myString = checkIfLevelCompleted();
+			}
+			myPlayerScript.Save ();
 			Application.LoadLevel(0);
 		}
 		
 		//next question button
-		if (GUI.Button (new Rect (10, 20, 90, 90), "Next \nQuestion", myButtonStyle)) {
-			myString = evaluateAnswer();
-		} 
+		if (!myPlayer.isFinished ()) {
+			if (GUI.Button (new Rect (10, 20, 90, 90), "Next \nQuestion", myButtonStyle)) {
+				myString = evaluateAnswer();
+				myPlayerScript.Save ();
+			} 
+		}
 
 		//hint button
 		if ((myPlayerLevelFlags.textTips) && (sliderSet) && (!answerSet)) {
@@ -326,40 +341,57 @@ public class PlayManager : MonoBehaviour {
 
 	string evaluateAnswer() {
 		string myString = "";
-		int correctAnswers = myPlayer.getcurrentQuestionLevel().getnumberAnswerCorrectly();
-		int noQuestions = myPlayer.getcurrentQuestionLevel().getnumberOfQuestions();
+		//int correctAnswers = myPlayer.getcurrentQuestionLevel().getnumberAnswerCorrectly();
+		//int noQuestions = myPlayer.getcurrentQuestionLevel().getnumberOfQuestions();
 
 		if (!answerSet) {
 			// need to discard the current question as the player wants to 
 			// ignore it and move to the next question
 			myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, null, false);
 		}
+
+		if ((answerSet) && (!validAnswer)) // an answer but it was wrong so skip question but save answer given for information
+			myPlayer.getcurrentQuestionLevel().questionCompleted(myQuestion, answer, validAnswer);
+
 		answerSet=false;
 		myQuestion = loadNextQuestion (); 
-		
+
 		if (myQuestion==null) {
 			levelCompleted=true;
-			myString = "You have completed all the questions in this level. You got " + correctAnswers + " out of " + noQuestions;
-			if ((correctAnswers/noQuestions)>= PASS_LEVEL) {
-				if (myPlayer.updatePlayerLevel()) {
-					myString= myString + "\nYou have now moved to level " + myPlayer.getcurrentPlayerLevel().ToString () + "." + myPlayer.getcurrentQuestionLevel().getLevel().ToString() + " "; 
-					myQuestion = loadNextQuestion (); 
-					initialiseForNewQuestion();
-				} else {
-					//myString= myString + "You have finished all the levels in this game. Well done!";
-					myPlayer.setToFinished();
-				}
-			} else {
-				myString= myString + "You just need a little bit more practice at this level. \n";
-				myString = myString + "You could also try using the Practice area to check your understanding before trying again";
-				myPlayer.getcurrentQuestionLevel().reset();
-				myQuestion = loadNextQuestion (); 
-				initialiseForNewQuestion();
-			}
+			myString = checkIfLevelCompleted();
 
+			myString = myString + "\n\n Please ";
+			myQuestion = loadNextQuestion (); 
 		} 
 
-		myPlayerScript.Save ();
+		if (!myPlayer.isFinished()) {
+			initialiseForNewQuestion();
+		}
+
+		return myString;
+	}
+
+	public string checkIfLevelCompleted() {
+		string myString = "";
+		float correctAnswers = (float) myPlayer.getcurrentQuestionLevel().getnumberAnswerCorrectly();
+		float noQuestions = (float) myPlayer.getcurrentQuestionLevel().getnumberOfQuestions();
+
+		myString = "You have completed all the questions in this level. You got " + correctAnswers + " out of " + noQuestions;
+		if ((correctAnswers/noQuestions)>= passThreshold) {
+			if (myPlayer.updatePlayerLevel()) {
+				myString= myString + "\nYou have now moved to level " + myPlayer.getcurrentPlayerLevel().ToString () + "." + myPlayer.getcurrentQuestionLevel().getLevel().ToString() + " "; 
+
+			} else {
+				myPlayer.setToFinished();
+			}
+		} else {
+			myString= myString + "\nYou just need a little bit more practice at this level. ";
+			myString = myString + "You could also try using the Practice area to check your understanding before trying again";
+
+			myPlayer.getcurrentQuestionLevel().reset();
+
+		}
+
 		return myString;
 	}
 

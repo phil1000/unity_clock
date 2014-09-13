@@ -14,17 +14,41 @@ public class PlayerScript : MonoBehaviour {
 	private List<PlayerLevelFlags> playerLevels;
 	private int currentQuestion = 0;
 	public bool elapsedIsSnapped;
-	private static string PLAYER_FILE = "player.txt";
-	private static string PLAYER_LEVEL_FILE = "playerLevel.txt";
-	//private static string QUESTION_FILE = "questionsNew1.txt";
-	private static string QUESTION_FILE = "questionsNew3.txt";
+
+	private bool invalidFiles = false;
+
+	private string playerFile;
+	private string playerLevelFile;
+	private string questionFile;
+	private static string CONFIG_FILE = "config.txt";
+
 	private Player currentPlayer;
 	private bool loggedIn = false;
+	private float passThreshold=0.0f;
 	
 	void Start () {
 		elapsedIsSnapped = true;
-		this.loadQuestions (); // pre load in case this is a new player
+		//load the config data in order to get location for player and question files
+		if (!this.loadConfigData ()) { 
+			// something wrong with config file so need to abort
+			invalidFiles=true;
+			return;
+		}
+
+		// pre load in case this is a new player
+		if (!this.loadQuestions ()) {
+			// something wrong with question file so need to abort
+			invalidFiles=true;
+			return;
+		}
+
+		// load player levels to see how many levels and which tools available in each level
 		playerLevels = this.loadPlayerLevels ();
+		if (playerLevels == null) {
+			// something wrong with player levels file so need to abort
+			invalidFiles=true;
+			return;
+		}
 
 		players = this.loadPlayers (); // load existing players
 		if (players == null) {
@@ -38,6 +62,10 @@ public class PlayerScript : MonoBehaviour {
 		DontDestroyOnLoad(transform.gameObject);
 	}
 
+	public bool isInvalidFiles() {
+		return invalidFiles;
+	}
+
 	private void addPlayer(Player myPlayer) {
 		if (players == null)
 			players = new Hashtable ();
@@ -46,6 +74,10 @@ public class PlayerScript : MonoBehaviour {
 
 	public Player getCurrentPlayer() {
 		return currentPlayer;
+	}
+
+	public float getPassThreshold() {
+		return passThreshold;
 	}
 
 	public Player getPlayer(string name) {
@@ -70,29 +102,35 @@ public class PlayerScript : MonoBehaviour {
 	private Hashtable loadPlayers() {
 		try
 		{
-			Stream s = File.Open (PLAYER_FILE, FileMode.Open, FileAccess.Read);
+			Stream s = File.Open (playerFile, FileMode.Open, FileAccess.Read);
 			BinaryFormatter b = new BinaryFormatter ();
-			return (Hashtable)b.Deserialize (s);
+			//start of alternative code
+			Hashtable myHash = (Hashtable)b.Deserialize (s);
+			s.Close();
+			return myHash;
+			//return (Hashtable)b.Deserialize (s);
 		} catch (Exception e) {
 			Console.WriteLine("{0}\n", e.Message);
 			return null;
 		}
-
-		/*if (File.Exists (PLAYER_FILE)) {
-			Stream s = File.Open (PLAYER_FILE, FileMode.Open, FileAccess.Read);
-			BinaryFormatter b = new BinaryFormatter ();
-			return (Hashtable)b.Deserialize (s);
-		} else
-			return null;*/
 	}
 
 	public void Save()
 	{
 		if (players==null) return;
-		Stream s = File.Open(PLAYER_FILE, FileMode.Create, FileAccess.ReadWrite);
+
+		try {
+			Stream s = File.Open(playerFile, FileMode.Create, FileAccess.ReadWrite);
+			BinaryFormatter b = new BinaryFormatter();
+			b.Serialize(s, players);
+			s.Close();
+		} catch (Exception e) {
+			Console.WriteLine("{0}\n", e.Message);
+		}
+		/*Stream s = File.Open(playerFile, FileMode.Create, FileAccess.ReadWrite);
 		BinaryFormatter b = new BinaryFormatter();
 		b.Serialize(s, players);
-		s.Close();      
+		s.Close();*/      
 	}	
 
 	private List<PlayerLevelFlags> loadPlayerLevels() {
@@ -108,7 +146,11 @@ public class PlayerScript : MonoBehaviour {
 		// SliderTools: can be true or false
 		List<PlayerLevelFlags> myPlayerLevels = new List<PlayerLevelFlags>();
 
-		List<string> playerLevelsArray = loadFromFile (PLAYER_LEVEL_FILE);
+		List<string> playerLevelsArray = loadFromFile (playerLevelFile);
+
+		if (playerLevelsArray.Count == 0)
+			return null; // the file read was unsuccessful
+
 		string [] entries;
 		foreach (string line in playerLevelsArray) {
 			// ignore comment lines in the file i.e. those starting with "//"
@@ -126,11 +168,52 @@ public class PlayerScript : MonoBehaviour {
 		return myPlayerLevels;
 	}
 
-	private void loadQuestions() {
+	private bool loadConfigData() {
+
+		bool returnVal = true; // assume the file will be found
+
+		playerFile = "";
+		playerLevelFile = "";
+		questionFile = "";
+		List<String> configArray = loadFromFile (CONFIG_FILE);
+		if (configArray.Count == 0)
+						return false; // the file read was unsuccessful
+		
+		string[] entries;
+		foreach (string line in configArray) {
+			if (!(line.Substring(0,2).Equals("//"))) {
+				entries = line.Split(',');
+				if (entries[0].Equals("PLAYER_FILE")) {
+					playerFile=entries[1];
+				} else {
+					if (entries[0].Equals("PLAYER_LEVEL_FILE")) {
+						playerLevelFile=entries[1];
+					} else {
+						if (entries[0].Equals("QUESTION_FILE")) {
+							questionFile=entries[1];
+						} else {
+							if (entries[0].Equals("PASS_THRESHOLD")) {
+								passThreshold=float.Parse(entries[1]);
+								passThreshold=passThreshold/100.0f; // to make it a percentage
+							}
+						}
+					}
+				}
+			}
+		}
+		return returnVal;
+	}
+
+	private bool loadQuestions() {
+		bool returnVal = true; // assume the file will be found
+
 		Question myQuestion = null;
 		questions = new List<Question>();
 		//List<string> questionsArray = loadFromFile ("questionsNew1.txt");
-		List<string> questionsArray = loadFromFile (QUESTION_FILE);
+		List<string> questionsArray = loadFromFile (questionFile);
+		if (questionsArray.Count == 0)
+			return false; // the file read was unsuccessful
+
 		string[] entries;
 
 		// The questions file contain multiple question lines,
@@ -172,6 +255,7 @@ public class PlayerScript : MonoBehaviour {
 				questions.Add (myQuestion);
 			}
 		}
+		return returnVal;
 	}
 	
 	private List<string> loadFromFile(string fileName)
@@ -214,7 +298,7 @@ public class PlayerScript : MonoBehaviour {
 		catch (Exception e)
 		{
 			Console.WriteLine("{0}\n", e.Message);
-			return fileLines; //will be null if no questions
+			return fileLines; //will be have a count of zero if no questions
 		}
 	}
 	//

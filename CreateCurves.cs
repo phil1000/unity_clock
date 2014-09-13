@@ -207,41 +207,6 @@ public class CreateCurves : MonoBehaviour {
 			iterHours = iterHours + 1.0f;
 		}
 	}
-	/*public string addLastPoint(List<float> sliderTime, float left, float width, float curveHeight, float startHours, float endHours, float endMinutes) {
-		
-		float increment = 0.0f;
-		float iterHours = startHours + 1.0f;
-		float lNext = nextPoint;
-		string temp="";
-		string text = "";
-
-		if ((sliderTime [0] == endHours) && (sliderTime[1] >= endMinutes)){ 
-			int difference = (int)(sliderTime [0] - nextHour);
-			if ((endMinutes != 0.0f) && (this.getNumberOfCurves () == (difference+1))) {
-				lNext = lNext + (width * (difference - 1)) - difference + width;
-				if (endMinutes == 15.0f) {
-					increment = 0.25f * width;
-					text = "15m";
-				} else {
-					if (endMinutes == 30.0f) {
-						increment = 0.5f * width;
-						text = "30m";
-					} else {
-						if (endMinutes == 45.0f) {
-							increment = 0.75f * width;
-							text = "45m";
-						} 
-					}
-				}
-				this.addCurve (lNext, lNext + increment, curveHeight);
-				CurvePointLabel myPoint = new CurvePointLabel(lNext, increment, text);
-				myCurveLabels.Add(myPoint);
-				temp=" added last point curve";
-			}
-			temp=" didnt add last point curve, curve no wrong - " + this.getNumberOfCurves().ToString ();
-		}
-		return temp;
-	}*/
 
 	public List<CurvePointLabel> getCurvePointLables() {
 		return myCurveLabels;
