@@ -341,8 +341,6 @@ public class PlayManager : MonoBehaviour {
 
 	string evaluateAnswer() {
 		string myString = "";
-		//int correctAnswers = myPlayer.getcurrentQuestionLevel().getnumberAnswerCorrectly();
-		//int noQuestions = myPlayer.getcurrentQuestionLevel().getnumberOfQuestions();
 
 		if (!answerSet) {
 			// need to discard the current question as the player wants to 
@@ -362,7 +360,10 @@ public class PlayManager : MonoBehaviour {
 
 			myString = myString + "\n\n Please ";
 			myQuestion = loadNextQuestion (); 
-		} 
+		} else {
+
+			if (!myPlayerLevelFlags.sliderTool) levelCompleted=false;
+		}
 
 		if (!myPlayer.isFinished()) {
 			initialiseForNewQuestion();
