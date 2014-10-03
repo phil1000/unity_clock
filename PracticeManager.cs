@@ -143,7 +143,6 @@ public class PracticeManager : MonoBehaviour {
 			practiceStateWidgets(startEndGroup);
 		}
 
-		//GUI.Label (new Rect (20, 500, 100, 40), "count=" + curveCallCount.ToString ());
 
 	}
 
@@ -182,7 +181,10 @@ public class PracticeManager : MonoBehaviour {
 		bool moveToNextState = false;
 		measure = "whole";
 
-		myFeedbackFunctions.giveFeedback (feedbackRect, "Start by entering a start time and then press OK");
+		string feedbackString = "Start by entering a start time such as breakfast time or the time you leave for school";
+		feedbackString = feedbackString + "\n\n When happy, press OK";
+		myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+		//myFeedbackFunctions.giveFeedback (feedbackRect, "Start by entering a start time and then press OK");
 
 		//present the time selector widget 
 		GUI.BeginGroup (new Rect (548, 210, 141, 175),timerStyle);
@@ -222,8 +224,12 @@ public class PracticeManager : MonoBehaviour {
 		bool moveToNextState = false;
 		bool timeConfirmed = false;
 
-		if (!endTimeInvalid) myFeedbackFunctions.giveFeedback (feedbackRect, "Great. Now enter a finish time and then press OK");
-		else myFeedbackFunctions.giveFeedback (feedbackRect, "Oops - The end time is not later than the start time. Please try again.");
+		if (!endTimeInvalid) {
+			string feedbackString = "Great, now enter an end time such as the time you have first break or lunchtime";
+			feedbackString = feedbackString + "\n\n When happy, press OK";
+			myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+			//myFeedbackFunctions.giveFeedback (feedbackRect, "Great. Now enter a finish time and then press OK");
+		} else myFeedbackFunctions.giveFeedback (feedbackRect, "Oops - The end time is not later than the start time. Please try again.");
 
 		//present the time selector widget 
 		GUI.BeginGroup (new Rect (697, 210, 141, 175),timerStyle);
@@ -270,15 +276,6 @@ public class PracticeManager : MonoBehaviour {
 
 			answer = myClockFunctions.deriveElapsedTime(endTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 
-			/*debug code DateTime sliderDate = new DateTime (DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, (int)endTime [0], (int)endTime [1],0);
-			DateTime startDate = new DateTime (DateTime.Today.Year, DateTime.Today.Month, DateTime.Today.Day, (int)startHours, (int)startMinutes, 0);
-			
-			TimeSpan difference = sliderDate.Subtract (startDate);
-			int hoursDiff = difference.Hours;
-			int minsDiff = difference.Minutes;
-			answerStr = "answer, hrs=" + answer [0].ToString () + " mins=" + answer [1].ToString () + "calculated diff="+hoursDiff.ToString()+":"+minsDiff.ToString()+"\n";
-			answerStr = answerStr + "endHr=" + endHours.ToString () + " EndMn=" + endMinutes.ToString () + " startHrs="+startHours.ToString () + " StartMn=" + startMinutes.ToString ()+" measure="+measure;
-			*/
 			moveToNextState=true;
 		}
 		return moveToNextState;
@@ -329,9 +326,9 @@ public class PracticeManager : MonoBehaviour {
 	
 	void practiceStateWidgets(Rect startEndGroup) {
 		if (!sliderGTElapsed) {
-			myFeedbackFunctions.giveFeedback (feedbackRect, "Great. Now move the slider button up and down and see what happens to the clock and the elapsed time");
+			myFeedbackFunctions.giveFeedback (feedbackRect, "Great. Now move the slider button up and down and see what happens to the clock and the elapsed time between your start and end times");
 		} else {
-			string feedbackStr = "Brilliant. ";
+			string feedbackStr = "Brilliant. The elapsed time between your start and end times is ";
 			feedbackStr = feedbackStr + myClockFunctions.deriveElapsedTimeString(answer);
 			feedbackStr = feedbackStr + "\nNow try counting up the times on the arcs to check that this is right";
 			myFeedbackFunctions.giveFeedback (feedbackRect, feedbackStr);
@@ -346,9 +343,6 @@ public class PracticeManager : MonoBehaviour {
 		myDrawClocks.positionClock (20 + startEndClockSize + 20, 20, startEndClockSize, endHours, endMinutes, 0.0f, "End time", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, centreSize);
 		myStyle.fontSize = temp;
 		GUI.EndGroup();
-		
-		//position and label all the slider widgets... clock and timeline
-		//GUI.BeginGroup(new Rect(Screen.width/2 - 148.0f, 20, 350, 450));
 		
 		//load the timeline and slider clock
 		Rect sliderRect = new Rect(190,480,1000,60);
@@ -385,9 +379,8 @@ public class PracticeManager : MonoBehaviour {
 			sliderGTElapsed=false;
 		}
 
-		//string elapsedString = myClockFunctions.deriveElapsedTimeString(answer, sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 		if (!elapsedString.Equals ("")) {
-			GUI.Box (new Rect (Screen.width/2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
+			GUI.Box (new Rect (Screen.width/2 - 165.0f, 370, 350, 80), "Elasped Time = " + elapsedString, myStyle);
 			curveScript.removeCurves();
 
 			// this works in game/test mode where the y coordinate resolves to 120
@@ -398,11 +391,8 @@ public class PracticeManager : MonoBehaviour {
 			curveScript.addCurves(sliderTime, sliderRect.x + 4, sliderRect.width / 12.0f, sliderRect.y-190, startHours, startMinutes, endHours, endMinutes);
 			curveCallCount++;
 			writeCurveLabels(sliderRect.y-24);
-			//GUI.Label(new Rect(100,400,200,50), "curveNo="+curveScript.getNumberOfCurves().ToString() + " sliderHrs="+sliderTime[0].ToString() + myString);
 		} else curveScript.removeCurves();
-		
 
-		//GUI.EndGroup ();
 	}
 
 	string setMeasure(float startMinutes, float endMinutes) {

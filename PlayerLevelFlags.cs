@@ -13,6 +13,9 @@ namespace AssemblyCSharp
 	[Serializable]
 	public class PlayerLevelFlags
 	{
+		// there will be one instance of this class for each of the player levels i,e,
+		// if four levels, there will be four instances
+		// All variables are immutable i.e. can only be set on instantiation
 		public readonly int id;
 		public readonly bool textTips;
 		public readonly bool arcTools;

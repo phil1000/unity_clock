@@ -19,11 +19,8 @@ namespace AssemblyCSharp
 		PlayerLevelFlags getPlayerLevelFlags() ;
 		Level getcurrentQuestionLevel();
 		String getName();
-		void updateScore(int quizId, int score);
 		bool updatePlayerLevel();
 		void updatePlayerLevel (int currentPlayerLevel, int currentQuestionLevel);
-		int getScore(int quizId);
-		//string getplayerLevelsHash(); // remove, just a test function
 	}
 }
 

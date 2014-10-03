@@ -93,9 +93,10 @@ public class PlayManager : MonoBehaviour {
 	void Awake() {
 		myPlayers = GameObject.Find("Player");
 		myPlayerScript = (PlayerScript) myPlayers.GetComponent ("PlayerScript");
+		myPlayer = myPlayerScript.getCurrentPlayer ();
+
 		this.elapsedIsSnapped = myPlayerScript.elapsedIsSnapped;
 		this.passThreshold = myPlayerScript.getPassThreshold ();
-		myPlayer = myPlayerScript.getCurrentPlayer ();
 		feedbackString = "";
 		myPlayerLevelFlags = myPlayer.getPlayerLevelFlags ();
 		myQuestion = loadNextQuestion ();
@@ -159,7 +160,7 @@ public class PlayManager : MonoBehaviour {
 					string elapsedString = myClockFunctions.deriveElapsedTimeString (sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 					if (!elapsedString.Equals ("")) {
 						if (myPlayerLevelFlags.textTips) {
-							GUI.Box (new Rect (Screen.width / 2 - 165.0f, 370, 350, 80), elapsedString, myStyle);
+							GUI.Box (new Rect (Screen.width / 2 - 165.0f, 370, 350, 80), "Elasped Time = " + elapsedString, myStyle);
 							if ( (!answerSet) && (!levelCompleted) && (hintsOn) )
 								feedbackString = feedbackString + "and the elapsed time.";
 						}
@@ -186,8 +187,6 @@ public class PlayManager : MonoBehaviour {
 					//position slider clock
 					myDrawClocks.positionClock (Screen.width - analogClockSize - 580, 200, analogClockSize, sliderTime [0], sliderTime [1], 0.0f, "", myStyle, analogGuiClock, analogClockBackground, analogClockCenter, analogClockCenterSize);
 
-					//string tempStr = setTimeandCheckAnswerProvided(timeSelectorRect);
-					//if (!tempStr.Equals("")) feedbackString = tempStr;
 					string answerString = setTimeandCheckAnswerProvided (timeSelectorRect);
 					if (!answerString.Equals (""))
 						feedbackString = answerString;
@@ -235,7 +234,6 @@ public class PlayManager : MonoBehaviour {
 					feedbackString = answerString;
 					levelCompleted=false;
 				}
-				//else feedbackString = myLevelString + " Please enter your answer for the elasped time between the start and end times. Click Check when you are happy with your answer";
 
 			}
 		}

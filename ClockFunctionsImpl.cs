@@ -78,7 +78,8 @@ namespace AssemblyCSharp
 			// derives the elapsed time between the time represented on the slider and 
 			// the start time. The value returned is translated into a string and 
 			// is set to blanks if the slider time < start time
-			if ((sliderTime [0] == startHours) && (sliderTime [1] == startMinutes)) return "Elapsed Time = 0 minutes";
+			//if ((sliderTime [0] == startHours) && (sliderTime [1] == startMinutes)) return "Elapsed Time = 0 minutes";
+			if ((sliderTime [0] == startHours) && (sliderTime [1] == startMinutes)) return "0 minutes";
 			if (sliderTime [0] < startHours) return "";
 			if ((sliderTime [0] == startHours) && (sliderTime [1] < startMinutes)) return "";
 			
@@ -87,32 +88,28 @@ namespace AssemblyCSharp
 			List<float> elapsedTime = deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 
 			if (elapsedTime[0] != 0) {
-				elapsed = "Elapsed Time = " + elapsedTime[0].ToString ();
+				//elapsed = "Elapsed Time = " + elapsedTime[0].ToString ();
+				elapsed = elapsedTime[0].ToString ();
 				if (elapsedTime[0] == 1) elapsed = elapsed + " hour";
 				else elapsed = elapsed + " hours";
 				if (elapsedTime[1] != 0)
 					elapsed = elapsed + " and " + elapsedTime[1].ToString () + " minutes";
 			} else {
-				elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
+				//elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
+				elapsed = elapsedTime[1].ToString () + " minutes";
 			}
 			return elapsed;
 		}
 
-		//public string deriveElapsedTimeString(List<float> answer, List<float> sliderTime, bool elapsedIsSnapped, float sliderValue, float maxSliderValue, string measure, float startHours, float startMinutes) {
 		public string deriveElapsedTimeString(List<float> answer) {
 
 			// derives the elapsed time between the time represented on the slider and 
 			// the start time. The value returned is translated into a string and 
 			// is set to blanks if the slider time < start time
-			//if ((sliderTime [0] == startHours) && (sliderTime [1] == startMinutes)) return "Elapsed Time = 0 minutes";
-			//if (sliderTime [0] < startHours) return "";
-			//if ((sliderTime [0] == startHours) && (sliderTime [1] < startMinutes)) return "";
-			
-			string elapsed = "Elapsed Time = ";
-			
-			//List<float> elapsedTime = deriveElapsedTime(sliderTime, elapsedIsSnapped, sliderValue, maxSliderValue, measure, startHours, startMinutes);
 
-			//if ((elapsedTime[0] > answer[0]) || ((elapsedTime [0] == answer[0]) && (elapsedTime [1] >= answer[1]))) {
+			string elapsed = "";
+			
+
 				if (answer[0]!=0) {
 					elapsed = elapsed + answer[0].ToString();
 					if (answer[0] == 1) elapsed = elapsed + " hour";
@@ -120,23 +117,11 @@ namespace AssemblyCSharp
 					if (answer[1] != 0)
 						elapsed = elapsed + " and " + answer[1].ToString () + " minutes";
 				} else {
-					elapsed = "Elapsed Time = " + answer[1].ToString () + " minutes";
+
+					elapsed = answer[1].ToString () + " minutes";
 				}
 
-				//return elapsed;
-			//}
 			return elapsed;
-
-			/*if (elapsedTime[0] != 0) {
-				elapsed = elapsed + elapsedTime[0].ToString ();
-				if (elapsedTime[0] == 1) elapsed = elapsed + " hour";
-				else elapsed = elapsed + " hours";
-				if (elapsedTime[1] != 0)
-					elapsed = elapsed + " and " + elapsedTime[1].ToString () + " minutes";
-			} else {
-				elapsed = "Elapsed Time = " + elapsedTime[1].ToString () + " minutes";
-			}
-			return elapsed;*/
 
 		}
 

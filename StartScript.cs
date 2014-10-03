@@ -45,7 +45,6 @@ public class StartScript : MonoBehaviour {
 		myPlayers = GameObject.Find("Player");
 		myPlayerScript = (PlayerScript) myPlayers.GetComponent ("PlayerScript");
 		this.elapsedIsSnapped = myPlayerScript.elapsedIsSnapped;
-		//loadNextQuestion ();
 	}
 
 	void OnGUI () {
@@ -63,6 +62,10 @@ public class StartScript : MonoBehaviour {
 			//the config files are caput and so need to tell user this
 			string feedbackString = "There is a problem with the config files so please correct and then re-run";
 			myFeedbackFunctions.giveFeedback (feedbackRect, feedbackString);
+			// Quit the application
+			if (GUI.Button (new Rect (30, 370, 90, 90), "Quit", myQuitButton)) {
+				Application.Quit ();
+			}
 			return;
 		}
 

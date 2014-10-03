@@ -23,7 +23,7 @@ namespace AssemblyCSharp
 		private int minQuestionLevel;
 		private int maxPlayerLevel;
 		private int minPlayerLevel;
-		private int score;
+		//private int score;
 		private bool playerHasFinished;
 
 		private Dictionary<int,Dictionary<int, Level>> playerLevelsHash;
@@ -153,91 +153,6 @@ namespace AssemblyCSharp
 			return name;
 		}
 
-		public void updateScore(int quizId, int score) {
-			this.score = score;
-		}
-
-		public int getScore(int quizId) {
-			return this.score;
-		}
-
-		/*
-		// this is just a test function .. remove when tested
-		public string getplayerLevelsHash() {
-			string myStr = "";
-			myStr = "maxPL=" + maxPlayerLevel + " minPL=" + minPlayerLevel + "maxQL=" + maxQuestionLevel + " minQL=" + minQuestionLevel;
-			myStr = myStr + " playerLevelHash entries = " + playerLevelsHash.Count + " ";
-			int j = minPlayerLevel;
-			
-			Hashtable myTempHash = (Hashtable)playerLevelsHash [1];
-			Level myTempLevel = (Level)myTempHash [1];
-			Question myQ1 = myTempLevel.getNextUnansweredQuestion ();
-			//myStr = myStr + "entry " + j + "." + i + "=" + myQ1.getStartHours ().ToString () + ":" + myQ1.getsStartMinutes ().ToString ();
-			myStr = myStr + "entry 1.1=" + myQ1.getStartHours ().ToString () + ":" + myQ1.getsStartMinutes ().ToString ();
-			myStr = myStr + "->" + myQ1.getEndHours ().ToString () + ":" + myQ1.getEndMinutes ().ToString ();
-
-			myTempHash = (Hashtable)playerLevelsHash [4];
-			myTempLevel = (Level)myTempHash [9];
-			myQ1 = myTempLevel.getNextUnansweredQuestion ();
-			//myStr = myStr + "entry " + j + "." + i + "=" + myQ1.getStartHours ().ToString () + ":" + myQ1.getsStartMinutes ().ToString ();
-			myStr = myStr + "entry 4.9=" + myQ1.getStartHours ().ToString () + ":" + myQ1.getsStartMinutes ().ToString ();
-			myStr = myStr + "->" + myQ1.getEndHours ().ToString () + ":" + myQ1.getEndMinutes ().ToString ();
-
-			List<float> answer = new List<float>();
-			answer.Add(1.0f);
-			answer.Add(30.0f);
-			bool validAnswer=true;
-			
-			while (j<=maxPlayerLevel) {
-				myStr = myStr + "\np"+j+":";
-				Hashtable myTempHash = (Hashtable)playerLevelsHash [j];
-				//myStr = myStr + "p#Size=" + playerLevelsHash.Count.ToString()+" ";
-				int i = minQuestionLevel;
-				
-				Level myTempLevel = (Level)myTempHash [1];
-				myStr = myStr + "levelId" + myTempLevel.getLevel().ToString()+" ";
-				myStr = myStr + "UnAnswquestionNo=" + myTempLevel.getUnansweredQuestions().Count.ToString();
-
-				i=9;
-				myTempLevel = (Level)myTempHash [i];
-				myStr = myStr + "levelId" + myTempLevel.getLevel().ToString()+" ";
-				myStr = myStr + "UnAnswquestionNo=" + myTempLevel.getUnansweredQuestions().Count.ToString();
-				//Level myTempLevel;
-				
-				while (i<=maxQuestionLevel) {
-					
-					myStr = myStr + "q"+i+"-";
-					
-					Level myTempLevel = (Level)myTempHash [i];
-					myStr = myStr + "LvLId=" + myTempLevel.getLevel().ToString()+",";
-					myStr = myStr + myTempLevel.getUnansweredQuestions().Count.ToString()+" ";
-					List<Question> unansweredQuestions = myTempLevel.getUnansweredQuestions();
-					//myStr = myStr + " StartHr="+unansweredQuestions[0].getStartHours().ToString() + "." + unansweredQuestions[0].getsStartMinutes().ToString() + ";";
-					Question myQ1 = myTempLevel.getNextUnansweredQuestion ();
-					while (myQ1!=null) {
-						myStr = myStr + " t="+myQ1.getStartHours().ToString() + "." + myQ1.getsStartMinutes().ToString() + ";";
-						myTempLevel.questionCompleted(myQ1, answer, validAnswer);
-						myQ1= myTempLevel.getNextUnansweredQuestion ();
-					}
-					//myQ1 = myTempLevel.getNextUnansweredQuestion ();
-					//myStr = myStr + " t1="+myQ1.getStartHours().ToString() + "." + myQ1.getsStartMinutes().ToString() + ";";
-					
-					Question myQ1 = myTempLevel.getNextUnansweredQuestion ();
-					//myStr = myStr + "questionNo=" + myTempLevel.getnumberOfQuestions().ToString();
-
-					while (myQ1!=null) {
-						myStr = myStr + "entry " + j + "." + i + "=" + myQ1.getStartHours ().ToString () + ":" + myQ1.getsStartMinutes ().ToString ();
-						myStr = myStr + "->" + myQ1.getEndHours ().ToString () + ":" + myQ1.getEndMinutes ().ToString ();
-						myTempLevel.questionCompleted (myQ1, null, true);
-						myQ1 = myTempLevel.getNextUnansweredQuestion ();
-					}
-					i++;
-				}
-				j++;
-			}
-			return myStr;		
-		}
-		*/
 	}
 }
 

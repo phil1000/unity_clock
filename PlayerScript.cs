@@ -62,10 +62,6 @@ public class PlayerScript : MonoBehaviour {
 		DontDestroyOnLoad(transform.gameObject);
 	}
 
-	public bool isInvalidFiles() {
-		return invalidFiles;
-	}
-
 	private void addPlayer(Player myPlayer) {
 		if (players == null)
 			players = new Hashtable ();
@@ -74,10 +70,6 @@ public class PlayerScript : MonoBehaviour {
 
 	public Player getCurrentPlayer() {
 		return currentPlayer;
-	}
-
-	public float getPassThreshold() {
-		return passThreshold;
 	}
 
 	public Player getPlayer(string name) {
@@ -93,6 +85,14 @@ public class PlayerScript : MonoBehaviour {
 		}
 		loggedIn = true;
 		return currentPlayer;
+	}
+
+	public float getPassThreshold() {
+		return passThreshold;
+	}
+	
+	public bool isInvalidFiles() {
+		return invalidFiles;
 	}
 
 	public bool isLoggedIn() {
@@ -126,11 +126,7 @@ public class PlayerScript : MonoBehaviour {
 			s.Close();
 		} catch (Exception e) {
 			Console.WriteLine("{0}\n", e.Message);
-		}
-		/*Stream s = File.Open(playerFile, FileMode.Create, FileAccess.ReadWrite);
-		BinaryFormatter b = new BinaryFormatter();
-		b.Serialize(s, players);
-		s.Close();*/      
+		}     
 	}	
 
 	private List<PlayerLevelFlags> loadPlayerLevels() {
